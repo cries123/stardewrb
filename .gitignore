@@ -1,0 +1,15 @@
+# Wally generated (optional)
+/Packages/
+/ServerPackages/
+/*.rbxl
+/*.rbxlx
+/*.rbxm
+/*.rbxmx
+/sourcemap.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
