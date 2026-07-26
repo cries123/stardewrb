@@ -47,7 +47,7 @@ function HubTerrainBuilder.build(folder: Folder, platformSize: number)
 
 	for index, spec in cornerHills do
 		local position, radius = spec[1], spec[2]
-		terrain:FillBall(CFrame.new(position + Vector3.new(0, 4, 0)), radius, Enum.Material.Grass)
+		terrain:FillBall(position + Vector3.new(0, 4, 0), radius, Enum.Material.Grass)
 		local marker = Instance.new("Part")
 		marker.Name = `HillMarker_{index}`
 		marker.Anchored = true
