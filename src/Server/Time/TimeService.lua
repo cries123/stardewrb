@@ -48,6 +48,9 @@ function TimeService.init()
 end
 
 function TimeService._onNewDay(gameDay: number)
+	local ShipmentService = require(script.Parent.Parent.Economy.ShipmentService)
+	ShipmentService.processOvernightForAllPlayers()
+
 	local ReplicatedStorage = game:GetService("ReplicatedStorage")
 	local PlaceType = require(ReplicatedStorage.Shared.PlaceType)
 

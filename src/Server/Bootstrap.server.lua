@@ -69,14 +69,6 @@ local function start()
 		warn("[Bootstrap] Farm place detected but FarmWorld was not created — check server output for errors")
 	elseif PlaceType.isHub() and not workspace:FindFirstChild("HubWorld") then
 		warn("[Bootstrap] Hub place detected but HubWorld was not created — check server output for errors")
-	elseif PlaceType.isHub() then
-		local hubWorld = workspace:FindFirstChild("HubWorld")
-		local buildings = hubWorld and hubWorld:FindFirstChild("Buildings")
-		if not buildings or #buildings:GetChildren() == 0 then
-			warn(
-				"[Bootstrap] HubWorld exists but Buildings folder is empty — pull latest hub branch, use rojo serve default.project.json, Stop then Play"
-			)
-		end
 	end
 end
 

@@ -74,6 +74,14 @@ function PlayerDataUtil.ensureDefaults(data)
 		if data.Inventory.Harvest == nil then
 			data.Inventory.Harvest = deepCopy(ProfileTemplate.Inventory.Harvest)
 		end
+
+		if data.Inventory.Food == nil then
+			data.Inventory.Food = deepCopy(ProfileTemplate.Inventory.Food)
+		end
+	end
+
+	if data.PendingShipment == nil then
+		data.PendingShipment = deepCopy(ProfileTemplate.PendingShipment)
 	end
 
 	if data.FarmState == nil then

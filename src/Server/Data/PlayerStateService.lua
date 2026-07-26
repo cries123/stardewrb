@@ -15,6 +15,7 @@ function PlayerStateService.replicate(player: Player)
 		Inventory = data.Inventory,
 		Money = data.Money,
 		Stats = data.Stats,
+		PendingShipment = data.PendingShipment,
 	})
 end
 
