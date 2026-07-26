@@ -13,3 +13,6 @@ Thumbs.db
 *.swp
 *.swo
 .vscode/
+
+# Local place IDs (copy from GameConfig.Private.lua.example)
+src/Shared/GameConfig.Private.lua

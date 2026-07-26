@@ -94,4 +94,22 @@ if not GameConfig.Hub then
 	}
 end
 
+local privateConfigModule = script.Parent:FindFirstChild("GameConfig.Private")
+if privateConfigModule and privateConfigModule:IsA("ModuleScript") then
+	local ok, privateConfig = pcall(require, privateConfigModule)
+	if ok and type(privateConfig) == "table" then
+		if privateConfig.Places then
+			if privateConfig.Places.Hub and privateConfig.Places.Hub.PlaceId then
+				GameConfig.Places.Hub.PlaceId = privateConfig.Places.Hub.PlaceId
+			end
+			if privateConfig.Places.Farm and privateConfig.Places.Farm.PlaceId then
+				GameConfig.Places.Farm.PlaceId = privateConfig.Places.Farm.PlaceId
+			end
+		end
+		if privateConfig.StudioPlaceTypeOverride ~= nil then
+			GameConfig.StudioPlaceTypeOverride = privateConfig.StudioPlaceTypeOverride
+		end
+	end
+end
+
 return GameConfig
