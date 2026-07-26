@@ -143,19 +143,16 @@ The hub is built procedurally by `HubWorldService` when you serve `default.proje
 
 Edit layout in `src/Shared/Hub/HubLayout.lua` and colors in `src/Shared/Hub/HubSeasonPalettes.lua`.
 
-<<<<<<< HEAD
 **Visual pass (v2):** Terrain hills + western river, thin textured paths, layered trees, lamp posts (on after 6 PM), cozy building kits for Pierre's/Saloon/Clinic/Town Square, bloom + atmosphere lighting.
 
 **Hub looks empty (only purple portal / baseplate)?**
-1. Pull the hub branch: `git pull origin cursor/hub-town-world-e614`
+1. Pull the latest hub branch: `git pull origin cursor/hub-visual-polish-e614`
 2. Use **`rojo serve default.project.json`** (not `farm.project.json`)
 3. Open your **hub** place in Studio → Rojo Connect
 4. Explorer must show `ReplicatedStorage.Shared.Hub` and `Server.Hub.HubWorldService`
-5. Play → Output should say `[HubWorldService] Pelican Town ready`
+5. Stop Play → Play — Output should say `[HubWorldService] Pelican Town ready`
 6. `workspace` should contain a `HubWorld` folder with Buildings, Walkways, Nature
 
-=======
->>>>>>> origin/main
 ## Global time sync
 
 `TimeMath` derives the in-game clock from `os.time()` and a shared `TimeEpoch` in `GameConfig`. Every server computes identical `gameDay`, `dayProgress`, and `clockTime`, so Hub and Farm lighting stay aligned.
