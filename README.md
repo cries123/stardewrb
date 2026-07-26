@@ -20,12 +20,35 @@ Universe
 ## Prerequisites
 
 - [Roblox Studio](https://create.roblox.com/)
-- [Aftman](https://github.com/LPGhatguy/aftman) (recommended) or manual install of Rojo 7.x
-- [Rojo](https://rojo.space/) 7.x
+- [Aftman](https://github.com/LPGhatguy/aftman) (recommended) or manual install of **Rojo 7.7.0**
+- [Rojo 7.7.0](https://github.com/rojo-rbx/rojo/releases/tag/v7.7.0) — pinned in `aftman.toml` and `.rojo-version`
 
 ```bash
 aftman install
+rojo --version    # should print Rojo 7.7.0
+rojo plugin install
 ```
+
+**Windows (uses `C:\rojo\rojo.exe`):**
+
+```powershell
+.\scripts\fix-rojo.ps1 -RojoExe "C:\rojo\rojo.exe"
+.\scripts\serve-hub.ps1
+```
+
+### Rojo 7.7.0 + Studio plugin setup
+
+Rojo **7.7.0** uses **protocol v5 (websockets)**. The Creator Store **Rojo Managed Plugin** (`user_RojoManagedPlugin.rbxm`) is still **7.6.x** and will cause `protocolVersion` errors even if your CLI says 7.7.0.
+
+**One-time setup:**
+
+1. Keep your CLI at **7.7.0** (`C:\rojo\rojo.exe` or `aftman install`).
+2. Run `.\scripts\fix-rojo.ps1` — installs the **matching 7.7.0** file plugin.
+3. In Studio → **Plugins → Manage Plugins** → **disable** the Creator Store **Rojo / Rojo Managed Plugin**.
+4. Restart Studio completely.
+5. `.\scripts\serve-hub.ps1` → in Studio Rojo panel click **Connect**.
+
+Only **one** Rojo plugin may be enabled: the file plugin in `%LOCALAPPDATA%\Roblox\Plugins\` installed by **your** 7.7.0 CLI. Do not use the store plugin with 7.7.
 
 ## Project layout
 
