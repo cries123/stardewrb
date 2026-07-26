@@ -9,6 +9,7 @@ local ProfileTemplate = require(ReplicatedStorage.Shared.ProfileTemplate)
 local DataService = {}
 DataService._profileStore = nil
 DataService._profiles = {} -- [Player] = Profile
+DataService._skipReleaseKick = {} -- [Player] = true during intentional release (teleport, shutdown)
 
 local function deepCopy(value)
 	if type(value) ~= "table" then
@@ -61,6 +62,10 @@ function DataService._loadProfile(player: Player)
 
 	profile:ListenToRelease(function()
 		DataService._profiles[player] = nil
+		if DataService._skipReleaseKick[player] then
+			DataService._skipReleaseKick[player] = nil
+			return
+		end
 		if player.Parent then
 			player:Kick("Your data session was released. Please rejoin.")
 		end
@@ -77,6 +82,7 @@ end
 function DataService._releaseProfile(player: Player)
 	local profile = DataService._profiles[player]
 	if profile then
+		DataService._skipReleaseKick[player] = true
 		profile:Release()
 	end
 	DataService._profiles[player] = nil
@@ -120,6 +126,7 @@ function DataService.releaseForTeleport(player: Player): boolean
 		return false
 	end
 
+	DataService._skipReleaseKick[player] = true
 	profile:Release()
 	DataService._profiles[player] = nil
 	return true

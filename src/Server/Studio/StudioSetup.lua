@@ -4,10 +4,8 @@
 	to simulate the Farm spoke locally.
 ]]
 
-local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local GameConfig = require(ReplicatedStorage.Shared.GameConfig)
 local PlaceType = require(ReplicatedStorage.Shared.PlaceType)
 
 local StudioSetup = {}
