@@ -97,6 +97,7 @@ function HubShopUi.open(shopId: string)
 	layout.Padding = UDim.new(0, 8)
 	layout.Parent = list
 
+	local itemCount = 0
 	for index, entry in schedule.Items do
 		local displayName, price = getItemDisplay(entry.itemId, entry.kind)
 		if not price then
@@ -109,6 +110,7 @@ function HubShopUi.open(shopId: string)
 		row.BackgroundTransparency = 1
 		row.LayoutOrder = index
 		row.Parent = list
+		itemCount += 1
 
 		local detail = if entry.kind == "food"
 			then `+{GameConfig.Food[entry.itemId].EnergyRestore} energy`
@@ -149,6 +151,16 @@ function HubShopUi.open(shopId: string)
 
 			Remotes.waitForEvent("BuyShopItem"):FireServer(shopId, entry.itemId, 1)
 		end)
+	end
+
+	if itemCount == 0 then
+		UiTheme.createLabel(list, {
+			Size = UDim2.new(1, -8, 0, 48),
+			Text = "No items for sale yet. Check back soon!",
+			TextColor3 = UiTheme.TextMuted,
+			TextSize = 14,
+			TextWrapped = true,
+		})
 	end
 
 	task.defer(function()

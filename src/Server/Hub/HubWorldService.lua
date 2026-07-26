@@ -8,13 +8,14 @@ local HubTerrainBuilder = require(script.Parent.HubTerrainBuilder)
 local HubBuildingKit = require(script.Parent.HubBuildingKit)
 local HubNatureKit = require(script.Parent.HubNatureKit)
 local HubInteractionService = require(script.Parent.HubInteractionService)
+local HubNpcKit = require(script.Parent.HubNpcKit)
 
 local HubWorldService = {}
 
 local WORLD_FOLDER_NAME = "HubWorld"
 local FARM_PORTAL_TAG = "FarmPortal"
 local SEASON_ATTR = "HubSeasonPart"
-local BUILD_VERSION = 5
+local BUILD_VERSION = 6
 
 local function runStep(label: string, callback): boolean
 	local ok, err = pcall(callback)
@@ -31,7 +32,7 @@ function HubWorldService.init()
 		return
 	end
 
-	print("[HubWorldService] Building Pelican Town (visual pass v5 + gameplay)...")
+	print("[HubWorldService] Building Pelican Town (v6 — NPCs & seasons)...")
 
 	local ok, err = pcall(function()
 		HubWorldService._clearDefaultSpawns()
@@ -190,6 +191,10 @@ function HubWorldService._buildWorld()
 
 	runStep("nature", function()
 		HubWorldService._createNature(natureFolder, HubLayout.NATURE_CLUSTERS, HubLayout.FLOWER_PATCHES)
+	end)
+
+	runStep("npcs", function()
+		HubNpcKit.spawnAll(folder, buildingsFolder)
 	end)
 
 	runStep("terrain", function()

@@ -86,4 +86,56 @@ function HubAtmosphereService._updateStreetLamps(clockTime: number)
 	end
 end
 
+function HubAtmosphereService.applySeasonLighting(seasonName: string)
+	local correction = Lighting:FindFirstChild("HubColorCorrection")
+	local atmosphere = Lighting:FindFirstChild("HubAtmosphere")
+
+	if seasonName == "Summer" then
+		Lighting.Brightness = 2.8
+		if correction then
+			correction.Brightness = 0.08
+			correction.Saturation = 0.22
+			correction.TintColor = Color3.fromRGB(255, 248, 220)
+		end
+		if atmosphere then
+			atmosphere.Density = 0.22
+			atmosphere.Haze = 0.6
+		end
+	elseif seasonName == "Winter" then
+		Lighting.Brightness = 1.9
+		if correction then
+			correction.Brightness = 0.04
+			correction.Saturation = -0.05
+			correction.TintColor = Color3.fromRGB(220, 230, 255)
+		end
+		if atmosphere then
+			atmosphere.Density = 0.38
+			atmosphere.Haze = 1.8
+			atmosphere.Color = Color3.fromRGB(210, 220, 240)
+		end
+	elseif seasonName == "Fall" then
+		Lighting.Brightness = 2.1
+		if correction then
+			correction.Brightness = 0.03
+			correction.Saturation = 0.15
+			correction.TintColor = Color3.fromRGB(255, 235, 200)
+		end
+		if atmosphere then
+			atmosphere.Density = 0.3
+			atmosphere.Haze = 1.0
+		end
+	else
+		Lighting.Brightness = 2.2
+		if correction then
+			correction.Brightness = 0.02
+			correction.Saturation = 0.12
+			correction.TintColor = Color3.fromRGB(255, 245, 230)
+		end
+		if atmosphere then
+			atmosphere.Density = 0.32
+			atmosphere.Haze = 1.2
+		end
+	end
+end
+
 return HubAtmosphereService

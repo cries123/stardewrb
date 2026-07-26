@@ -84,6 +84,20 @@ function PlayerDataUtil.ensureDefaults(data)
 		data.PendingShipment = deepCopy(ProfileTemplate.PendingShipment)
 	end
 
+	if data.Ledger == nil then
+		data.Ledger = deepCopy(ProfileTemplate.Ledger)
+	else
+		if data.Ledger.TotalGoldEarned == nil then
+			data.Ledger.TotalGoldEarned = 0
+		end
+		if data.Ledger.TotalGoldSpent == nil then
+			data.Ledger.TotalGoldSpent = 0
+		end
+		if data.Ledger.TotalCropsSold == nil then
+			data.Ledger.TotalCropsSold = 0
+		end
+	end
+
 	if data.FarmState == nil then
 		data.FarmState = {
 			PrivateServerCode = nil,

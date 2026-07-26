@@ -8,6 +8,7 @@ local PlayerDataUtil = require(ReplicatedStorage.Shared.Data.PlayerDataUtil)
 local DataService = require(script.Parent.Parent.Data.DataService)
 local Remotes = require(script.Parent.Parent.Net.Remotes)
 local PlayerStateService = require(script.Parent.Parent.Data.PlayerStateService)
+local LedgerService = require(script.Parent.LedgerService)
 
 local ShopService = {}
 
@@ -111,6 +112,7 @@ function ShopService.buyItem(player: Player, shopId: string, itemId: string, amo
 		end
 
 		data.Money -= totalCost
+		LedgerService.recordGoldSpent(data, totalCost)
 		data.Inventory.Seeds[itemId] = (data.Inventory.Seeds[itemId] or 0) + amount
 	elseif catalogEntry.kind == "food" then
 		local foodConfig = GameConfig.Food[itemId]
@@ -120,6 +122,7 @@ function ShopService.buyItem(player: Player, shopId: string, itemId: string, amo
 		end
 
 		data.Money -= totalCost
+		LedgerService.recordGoldSpent(data, totalCost)
 		data.Inventory.Food[itemId] = (data.Inventory.Food[itemId] or 0) + amount
 	else
 		sendResult(player, false, "Unsupported item type.")
