@@ -143,6 +143,8 @@ The hub is built procedurally by `HubWorldService` when you serve `default.proje
 
 Edit layout in `src/Shared/Hub/HubLayout.lua` and colors in `src/Shared/Hub/HubSeasonPalettes.lua`.
 
+**Visual pass (v2):** Terrain hills + western river, thin textured paths, layered trees, lamp posts (on after 6 PM), cozy building kits for Pierre's/Saloon/Clinic/Town Square, bloom + atmosphere lighting.
+
 **Hub looks empty (only purple portal / baseplate)?**
 1. Pull the hub branch: `git pull origin cursor/hub-town-world-e614`
 2. Use **`rojo serve default.project.json`** (not `farm.project.json`)
