@@ -13,19 +13,25 @@ local function start()
 	local HubWorldService = require(script.Parent.Hub.HubWorldService)
 	local HubSeasonService = require(script.Parent.Hub.HubSeasonService)
 	local HubAtmosphereService = require(script.Parent.Hub.HubAtmosphereService)
+	local HubInteractionService = require(script.Parent.Hub.HubInteractionService)
 	local StudioSetup = require(script.Parent.Studio.StudioSetup)
 	local PlayerStateService = require(script.Parent.Data.PlayerStateService)
 	local SellService = require(script.Parent.Economy.SellService)
+	local ShopService = require(script.Parent.Economy.ShopService)
+	local ShipmentService = require(script.Parent.Economy.ShipmentService)
 
 	DataService.init()
 	TimeService.init()
 	FarmTeleportService.init()
 	FarmGridService.init()
 	SellService.init()
+	ShopService.init()
+	ShipmentService.init()
 	FarmWorldService.init()
 	HubWorldService.init()
 	HubSeasonService.init()
 	HubAtmosphereService.init()
+	HubInteractionService.init()
 	PortalService.init()
 	ReturnPortalService.init()
 	StudioSetup.init()
@@ -69,6 +75,14 @@ local function start()
 		warn("[Bootstrap] Farm place detected but FarmWorld was not created — check server output for errors")
 	elseif PlaceType.isHub() and not workspace:FindFirstChild("HubWorld") then
 		warn("[Bootstrap] Hub place detected but HubWorld was not created — check server output for errors")
+	elseif PlaceType.isHub() then
+		local hubWorld = workspace:FindFirstChild("HubWorld")
+		local buildings = hubWorld and hubWorld:FindFirstChild("Buildings")
+		if not buildings or #buildings:GetChildren() == 0 then
+			warn(
+				"[Bootstrap] HubWorld exists but Buildings folder is empty — pull latest hub branch, use rojo serve default.project.json, Stop then Play"
+			)
+		end
 	end
 end
 

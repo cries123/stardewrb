@@ -6,6 +6,7 @@ local PlayerDataUtil = require(ReplicatedStorage.Shared.Data.PlayerDataUtil)
 local DataService = require(script.Parent.Parent.Data.DataService)
 local Remotes = require(script.Parent.Parent.Net.Remotes)
 local PlayerStateService = require(script.Parent.Parent.Data.PlayerStateService)
+local LedgerService = require(script.Parent.LedgerService)
 
 local ShipmentService = {}
 
@@ -66,6 +67,7 @@ function ShipmentService.processOvernightForPlayer(player: Player)
 	PlayerDataUtil.ensureDefaults(data)
 
 	local totalGold = 0
+	local totalCrops = 0
 	local shippedItems = {}
 
 	for itemId, amount in data.PendingShipment do
@@ -73,6 +75,7 @@ function ShipmentService.processOvernightForPlayer(player: Player)
 			local cropConfig = GameConfig.Crops[itemId]
 			if cropConfig and cropConfig.SellPrice then
 				totalGold += cropConfig.SellPrice * amount
+				totalCrops += amount
 				table.insert(shippedItems, `{amount}x {cropConfig.DisplayName}`)
 			end
 			data.PendingShipment[itemId] = 0
@@ -81,6 +84,8 @@ function ShipmentService.processOvernightForPlayer(player: Player)
 
 	if totalGold > 0 then
 		data.Money += totalGold
+		LedgerService.recordGoldEarned(data, totalGold)
+		LedgerService.recordCropsSold(data, totalCrops)
 		PlayerStateService.replicate(player)
 		sendResult(player, true, `Overnight shipment: G{totalGold} ({table.concat(shippedItems, ", ")}).`)
 	end

@@ -68,12 +68,23 @@ function TimeMath.getCalendarLabels(gameDay: number)
 	local dayNumber = math.max(1, math.floor(gameDay) + 1)
 	local weekdayIndex = (dayNumber % #weekdays) + 1
 	local seasonIndex = (math.floor(gameDay / daysPerSeason) % #seasons) + 1
+	local dayInSeason = (math.floor(gameDay) % daysPerSeason) + 1
 
 	return {
 		dayNumber = dayNumber,
+		dayInSeason = dayInSeason,
 		weekday = weekdays[weekdayIndex],
 		season = seasons[seasonIndex],
 	}
+end
+
+function TimeMath.getDayInSeason(gameDay: number): number
+	local daysPerSeason = GameConfig.DaysPerSeason
+	if typeof(daysPerSeason) ~= "number" or daysPerSeason <= 0 then
+		daysPerSeason = 28
+	end
+
+	return (math.floor(gameDay) % daysPerSeason) + 1
 end
 
 return TimeMath

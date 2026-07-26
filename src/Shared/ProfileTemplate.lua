@@ -40,6 +40,12 @@ local ProfileTemplate = {
 
 	PendingShipment = {},
 
+	Ledger = {
+		TotalGoldEarned = 0,
+		TotalGoldSpent = 0,
+		TotalCropsSold = 0,
+	},
+
 	FarmState = {
 		-- Reserved-server access code for this player's private farm instance.
 		PrivateServerCode = nil,

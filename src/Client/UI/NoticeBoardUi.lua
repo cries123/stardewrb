@@ -3,6 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local GameConfig = require(ReplicatedStorage.Shared.GameConfig)
 local TimeMath = require(ReplicatedStorage.Shared.Time.TimeMath)
+local FestivalMath = require(ReplicatedStorage.Shared.Time.FestivalMath)
 local UiTheme = require(script.Parent.UiTheme)
 local HubPanelUi = require(script.Parent.HubPanelUi)
 
@@ -11,18 +12,7 @@ local NoticeBoardUi = {}
 local player = Players.LocalPlayer
 
 local function getFestivalMessage(gameDay: number): string
-	local calendar = TimeMath.getCalendarLabels(gameDay)
-	local festivals = GameConfig.Festivals
-
-	if typeof(festivals) == "table" then
-		for _, festival in festivals do
-			if festival.season == calendar.season and festival.day == calendar.dayNumber then
-				return festival.name or "Festival today!"
-			end
-		end
-	end
-
-	return "No festival today."
+	return FestivalMath.getNoticeMessage(gameDay)
 end
 
 function NoticeBoardUi.open()
@@ -40,7 +30,7 @@ function NoticeBoardUi.open()
 	UiTheme.createLabel(panel, {
 		Position = UDim2.fromOffset(12, 48),
 		Size = UDim2.new(1, -24, 0, 24),
-		Text = `{calendar.weekday}, {calendar.season} {calendar.dayNumber}`,
+		Text = `{calendar.weekday}, {calendar.season} {calendar.dayInSeason}`,
 		Font = Enum.Font.GothamBold,
 		TextSize = 18,
 	})
@@ -64,8 +54,8 @@ function NoticeBoardUi.open()
 	local notes = {
 		"Pierre's is open 9 AM – 5 PM (closed Wed).",
 		"Saloon serves food noon – midnight.",
+		"Talk to NPCs at shop doors — Pierre, Gus, Clint, Lewis.",
 		"Ship crops at the bin near the square for next-day gold.",
-		"Visit your farm through the bus stop south of town.",
 	}
 
 	for index, line in notes do
