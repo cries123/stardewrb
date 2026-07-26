@@ -45,16 +45,30 @@ function FarmClient.init()
 	FarmClient._bindRemotes()
 end
 
+function FarmClient._prepareGround()
+	local baseplate = workspace:FindFirstChild("Baseplate")
+	if baseplate and baseplate:IsA("BasePart") then
+		baseplate.Transparency = 1
+		baseplate.CanCollide = false
+	end
+end
+
 function FarmClient._buildPlotTiles()
+	FarmClient._prepareGround()
+
+	local tileHeight = 0.5
+	local tileCenterY = GameConfig.Farm.Origin.Y + tileHeight / 2 + 0.05
+
 	for x = 1, GameConfig.Farm.GridWidth do
 		for y = 1, GameConfig.Farm.GridHeight do
 			local tile = Instance.new("Part")
 			tile.Name = `Cell_{x}_{y}`
 			tile.Anchored = true
 			tile.CanCollide = true
-			tile.Size = Vector3.new(GameConfig.Farm.CellSize - 0.2, 0.5, GameConfig.Farm.CellSize - 0.2)
-			tile.Position = GridMath.cellToWorld(x, y) + Vector3.new(0, -0.25, 0)
-			tile.Material = Enum.Material.Grass
+			tile.Size = Vector3.new(GameConfig.Farm.CellSize - 0.2, tileHeight, GameConfig.Farm.CellSize - 0.2)
+			local worldPos = GridMath.cellToWorld(x, y)
+			tile.Position = Vector3.new(worldPos.X, tileCenterY, worldPos.Z)
+			tile.Material = Enum.Material.Ground
 			tile.Color = SOIL_COLORS.Empty
 			tile.Parent = plotFolder
 		end
