@@ -6,6 +6,7 @@
 local HubLayout = {}
 
 HubLayout.TOWN_CENTER = Vector3.new(0, 0, 0)
+HubLayout.GROUND_Y = 5 -- all parts sit above the terrain plateau
 
 -- Thin walkway segments: { position (y ignored), size (X, _, Z) }
 HubLayout.WALKWAYS = {
@@ -167,15 +168,15 @@ HubLayout.BUILDINGS = {
 }
 
 HubLayout.RIVER_SIGN = {
-	position = Vector3.new(-118, 6, 0),
+	position = Vector3.new(-118, HubLayout.GROUND_Y + 4, 0),
 }
 
 HubLayout.HUB_SPAWN = {
-	position = Vector3.new(0, 4, -95),
+	position = Vector3.new(0, HubLayout.GROUND_Y + 1, -45),
 }
 
 HubLayout.FARM_PORTAL = {
-	position = Vector3.new(0, 8, -118),
+	position = Vector3.new(0, HubLayout.GROUND_Y + 5, -62),
 }
 
 HubLayout.NATURE_CLUSTERS = {
@@ -201,7 +202,7 @@ HubLayout.FLOWER_PATCHES = {
 }
 
 HubLayout.PLAYGROUND = {
-	center = Vector3.new(0, 3, 128),
+	center = Vector3.new(0, HubLayout.GROUND_Y, 128),
 }
 
 return HubLayout

@@ -4,6 +4,10 @@
 
 local HubNatureKit = {}
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local HubLayout = require(ReplicatedStorage.Shared.Hub.HubLayout)
+local GROUND_Y = HubLayout.GROUND_Y
+
 local SEASON_ATTR = "HubSeasonPart"
 local LAMP_TAG = "HubStreetLamp"
 
@@ -16,7 +20,7 @@ function HubNatureKit.markSeasonPart(part: BasePart, partType: string)
 end
 
 function HubNatureKit.createTree(parent: Instance, name: string, position: Vector3)
-	local base = position + Vector3.new(0, 3, 0)
+	local base = position + Vector3.new(0, GROUND_Y, 0)
 
 	local trunk = Instance.new("Part")
 	trunk.Name = `{name}_Trunk`
@@ -47,7 +51,7 @@ function HubNatureKit.createTree(parent: Instance, name: string, position: Vecto
 end
 
 function HubNatureKit.createLampPost(parent: Instance, position: Vector3, index: number)
-	local base = position + Vector3.new(0, 3, 0)
+	local base = position + Vector3.new(0, GROUND_Y, 0)
 	local folder = Instance.new("Folder")
 	folder.Name = `LampPost_{index}`
 	folder.Parent = parent
@@ -95,7 +99,7 @@ function HubNatureKit.createPathSegment(parent: Instance, index: number, positio
 	path.Name = `Path_{index}`
 	path.Anchored = true
 	path.Size = Vector3.new(size.X, 0.12, size.Z)
-	path.Position = position + Vector3.new(0, 3.06, 0)
+	path.Position = position + Vector3.new(0, GROUND_Y + 0.08, 0)
 	path.Material = Enum.Material.Cobblestone
 	path.Color = Color3.fromRGB(148, 132, 108)
 	path.CanCollide = false
@@ -132,7 +136,7 @@ function HubNatureKit.createFenceLine(parent: Instance, startPos: Vector3, endPo
 end
 
 function HubNatureKit.createFlowerPatch(parent: Instance, position: Vector3, index: number)
-	local base = position + Vector3.new(0, 3, 0)
+	local base = position + Vector3.new(0, GROUND_Y, 0)
 	for patch = 1, 5 do
 		local flower = Instance.new("Part")
 		flower.Name = `Flower_{index}_{patch}`

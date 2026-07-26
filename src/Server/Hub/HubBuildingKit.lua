@@ -4,6 +4,10 @@
 
 local HubBuildingKit = {}
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local HubLayout = require(ReplicatedStorage.Shared.Hub.HubLayout)
+local GROUND_Y = HubLayout.GROUND_Y
+
 local SIGN_WOOD = Color3.fromRGB(55, 42, 32)
 local WINDOW_GLASS = Color3.fromRGB(140, 180, 210)
 local DOOR_WOOD = Color3.fromRGB(92, 64, 40)
@@ -106,7 +110,7 @@ function HubBuildingKit.buildTownSquare(parent: Folder, def)
 	folder.Name = def.id
 	folder.Parent = parent
 
-	local origin = def.position + Vector3.new(0, 3, 0)
+	local origin = def.position + Vector3.new(0, GROUND_Y, 0)
 	local size = def.size
 
 	createPart({
@@ -171,7 +175,7 @@ function HubBuildingKit.buildPierres(parent: Folder, def)
 	folder.Name = def.id
 	folder.Parent = parent
 
-	local origin = def.position + Vector3.new(0, 3, 0)
+	local origin = def.position + Vector3.new(0, GROUND_Y, 0)
 	local width, height, depth = def.size.X, def.size.Y, def.size.Z
 
 	createPart({
@@ -233,7 +237,7 @@ function HubBuildingKit.buildSaloon(parent: Folder, def)
 	folder.Name = def.id
 	folder.Parent = parent
 
-	local origin = def.position + Vector3.new(0, 3, 0)
+	local origin = def.position + Vector3.new(0, GROUND_Y, 0)
 	local width, height, depth = def.size.X, def.size.Y, def.size.Z
 
 	createPart({
@@ -288,7 +292,7 @@ function HubBuildingKit.buildClinic(parent: Folder, def)
 	folder.Name = def.id
 	folder.Parent = parent
 
-	local origin = def.position + Vector3.new(0, 3, 0)
+	local origin = def.position + Vector3.new(0, GROUND_Y, 0)
 	local width, height, depth = def.size.X, def.size.Y, def.size.Z
 
 	createPart({
@@ -341,7 +345,7 @@ function HubBuildingKit.buildGeneric(parent: Folder, def)
 	folder.Name = def.id
 	folder.Parent = parent
 
-	local origin = def.position + Vector3.new(0, 3, 0)
+	local origin = def.position + Vector3.new(0, GROUND_Y, 0)
 	local width, height, depth = def.size.X, def.size.Y, def.size.Z
 
 	createPart({

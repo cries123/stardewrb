@@ -13,7 +13,15 @@ local HubWorldService = {}
 local WORLD_FOLDER_NAME = "HubWorld"
 local FARM_PORTAL_TAG = "FarmPortal"
 local SEASON_ATTR = "HubSeasonPart"
-local BUILD_VERSION = 2
+local BUILD_VERSION = 3
+
+local function runStep(label: string, callback)
+	local ok, err = pcall(callback)
+	if not ok then
+		warn(`[HubWorldService] Step failed ({label}):`, err)
+		error(err)
+	end
+end
 
 function HubWorldService.init()
 	if not PlaceType.isHub() then
@@ -21,7 +29,7 @@ function HubWorldService.init()
 		return
 	end
 
-	print("[HubWorldService] Building Pelican Town (visual pass)...")
+	print("[HubWorldService] Building Pelican Town (visual pass v3)...")
 
 	local ok, err = pcall(function()
 		HubWorldService._clearDefaultSpawns()
@@ -59,14 +67,24 @@ function HubWorldService._getOrCreateFolder(): Folder
 	return folder
 end
 
+function HubWorldService._shouldSkipBuild(folder: Folder): boolean
+	if folder:GetAttribute("BuildVersion") ~= BUILD_VERSION then
+		return false
+	end
+
+	local buildings = folder:FindFirstChild("Buildings")
+	return buildings ~= nil and #buildings:GetChildren() > 0
+end
+
 function HubWorldService._buildWorld()
 	local folder = HubWorldService._getOrCreateFolder()
-	if folder:GetAttribute("BuildVersion") == BUILD_VERSION then
+	if HubWorldService._shouldSkipBuild(folder) then
+		print("[HubWorldService] Town already built (v3)")
 		return
 	end
 
-	-- Rebuild from scratch when upgrading town visuals
 	folder:ClearAllChildren()
+	HubTerrainBuilder.reset(folder)
 
 	local hubConfig = GameConfig.Hub
 	local platformSize = hubConfig.PlatformSize
@@ -87,30 +105,44 @@ function HubWorldService._buildWorld()
 	propsFolder.Name = "Props"
 	propsFolder.Parent = folder
 
-	HubTerrainBuilder.build(folder, platformSize)
+	runStep("spawn and portal", function()
+		HubWorldService._createSpawn(folder, HubLayout.HUB_SPAWN.position)
+		HubWorldService._createFarmPortal(folder, HubLayout.FARM_PORTAL.position)
+	end)
 
-	for index, segment in HubLayout.WALKWAYS do
-		local position, size = segment[1], segment[2]
-		HubNatureKit.createPathSegment(pathsFolder, index, position, Vector3.new(size.X, 0.12, size.Z))
-	end
+	runStep("terrain", function()
+		HubTerrainBuilder.build(folder, platformSize)
+	end)
 
-	for index, building in HubLayout.BUILDINGS do
-		HubBuildingKit.build(buildingsFolder, building)
-	end
+	runStep("walkways", function()
+		for index, segment in HubLayout.WALKWAYS do
+			local position, size = segment[1], segment[2]
+			HubNatureKit.createPathSegment(pathsFolder, index, position, Vector3.new(size.X, 0.12, size.Z))
+		end
+	end)
 
-	for index, lampPosition in HubLayout.LAMP_POSTS do
-		HubNatureKit.createLampPost(propsFolder, lampPosition, index)
-	end
+	runStep("buildings", function()
+		for _, building in HubLayout.BUILDINGS do
+			HubBuildingKit.build(buildingsFolder, building)
+		end
+	end)
 
-	for index, line in HubLayout.FENCE_LINES do
-		HubNatureKit.createFenceLine(propsFolder, line[1], line[2], index)
-	end
+	runStep("props", function()
+		for index, lampPosition in HubLayout.LAMP_POSTS do
+			HubNatureKit.createLampPost(propsFolder, lampPosition, index)
+		end
 
-	HubWorldService._createRiverSign(propsFolder, HubLayout.RIVER_SIGN)
-	HubWorldService._createPlayground(propsFolder, HubLayout.PLAYGROUND)
-	HubWorldService._createNature(natureFolder, HubLayout.NATURE_CLUSTERS, HubLayout.FLOWER_PATCHES)
-	HubWorldService._createSpawn(folder, HubLayout.HUB_SPAWN.position)
-	HubWorldService._createFarmPortal(folder, HubLayout.FARM_PORTAL.position)
+		for index, line in HubLayout.FENCE_LINES do
+			HubNatureKit.createFenceLine(propsFolder, line[1], line[2], index)
+		end
+
+		HubWorldService._createRiverSign(propsFolder, HubLayout.RIVER_SIGN)
+		HubWorldService._createPlayground(propsFolder, HubLayout.PLAYGROUND)
+	end)
+
+	runStep("nature", function()
+		HubWorldService._createNature(natureFolder, HubLayout.NATURE_CLUSTERS, HubLayout.FLOWER_PATCHES)
+	end)
 
 	folder:SetAttribute("BuildVersion", BUILD_VERSION)
 end
@@ -224,8 +256,10 @@ function HubWorldService._createSpawn(parent: Folder, position: Vector3)
 end
 
 function HubWorldService._createFarmPortal(parent: Folder, position: Vector3)
-	if CollectionService:GetTagged(FARM_PORTAL_TAG)[1] then
-		return
+	for _, tagged in CollectionService:GetTagged(FARM_PORTAL_TAG) do
+		if tagged:IsA("BasePart") then
+			tagged:Destroy()
+		end
 	end
 
 	local arch = Instance.new("Part")
