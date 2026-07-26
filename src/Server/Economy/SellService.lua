@@ -1,9 +1,9 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local GameConfig = require(ReplicatedStorage.Shared.GameConfig)
-local DataService = require(script.Parent.Data.DataService)
+local DataService = require(script.Parent.Parent.Data.DataService)
 local Remotes = require(script.Parent.Parent.Net.Remotes)
-local PlayerStateService = require(script.Parent.PlayerStateService)
+local PlayerStateService = require(script.Parent.Parent.Data.PlayerStateService)
 
 local SellService = {}
 

@@ -64,7 +64,7 @@ local function start()
 	end
 end
 
-local ok, err = pcall(start)
+local ok, err = xpcall(start, debug.traceback)
 if not ok then
 	warn("[Bootstrap] StardewRB failed to start:", err)
 	error(err)
