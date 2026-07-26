@@ -44,6 +44,7 @@ function StardewHud._build()
 	StardewHud._buildMoneyPanel()
 	StardewHud._buildToolbar()
 	StardewHud._buildStatBars()
+	StardewHud._buildSellHint()
 
 	if PlaceType.isFarm() then
 		StardewHud._buildReturnButton()
@@ -296,6 +297,22 @@ function StardewHud._createVerticalBar(parent, name, fillColor, bgColor, positio
 	UiTheme.applyCorner(fill, UDim.new(0, 4))
 
 	return fill, frame
+end
+
+function StardewHud._buildSellHint()
+	if not PlaceType.isFarm() then
+		return
+	end
+
+	UiTheme.createLabel(screenGui, {
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 0.98, -72),
+		Size = UDim2.fromOffset(220, 18),
+		Text = "Select crops, press R to sell",
+		TextColor3 = UiTheme.TextMuted,
+		TextSize = 12,
+		TextXAlignment = Enum.TextXAlignment.Center,
+	})
 end
 
 function StardewHud._buildReturnButton()

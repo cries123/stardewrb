@@ -81,7 +81,7 @@ function HubUi._build()
 	inviteList.Name = "InviteList"
 	inviteList.Position = UDim2.fromOffset(12, 120)
 	inviteList.Size = UDim2.new(1, -24, 0, 110)
-	inviteList.BackgroundColor3 = UiTheme.Background
+	inviteList.BackgroundColor3 = UiTheme.Parchment
 	inviteList.BorderSizePixel = 0
 	inviteList.ScrollBarThickness = 6
 	inviteList.CanvasSize = UDim2.fromOffset(0, 0)
