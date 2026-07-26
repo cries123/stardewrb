@@ -70,6 +70,7 @@ function FarmClient._buildPlotTiles()
 			tile.Position = Vector3.new(worldPos.X, tileCenterY, worldPos.Z)
 			tile.Material = Enum.Material.Ground
 			tile.Color = SOIL_COLORS.Empty
+			tile.CanQuery = true
 			tile.Parent = plotFolder
 		end
 	end
@@ -157,11 +158,10 @@ end
 
 function FarmClient._bindInput()
 	UserInputService.InputBegan:Connect(function(input, processed)
-		if input.UserInputType ~= Enum.UserInputType.MouseButton1 then
+		if processed or input.UserInputType ~= Enum.UserInputType.MouseButton1 then
 			return
 		end
 
-		-- Allow farming clicks even when Roblox marks UI as processed.
 		FarmClient._performAction()
 	end)
 end
