@@ -7,13 +7,14 @@ local PlaceType = require(ReplicatedStorage.Shared.PlaceType)
 local HubTerrainBuilder = require(script.Parent.HubTerrainBuilder)
 local HubBuildingKit = require(script.Parent.HubBuildingKit)
 local HubNatureKit = require(script.Parent.HubNatureKit)
+local HubInteractionService = require(script.Parent.HubInteractionService)
 
 local HubWorldService = {}
 
 local WORLD_FOLDER_NAME = "HubWorld"
 local FARM_PORTAL_TAG = "FarmPortal"
 local SEASON_ATTR = "HubSeasonPart"
-local BUILD_VERSION = 4
+local BUILD_VERSION = 5
 
 local function runStep(label: string, callback): boolean
 	local ok, err = pcall(callback)
@@ -30,7 +31,7 @@ function HubWorldService.init()
 		return
 	end
 
-	print("[HubWorldService] Building Pelican Town (visual pass v4)...")
+	print("[HubWorldService] Building Pelican Town (visual pass v5 + gameplay)...")
 
 	local ok, err = pcall(function()
 		HubWorldService._clearDefaultSpawns()
@@ -184,6 +185,7 @@ function HubWorldService._buildWorld()
 
 		HubWorldService._createRiverSign(propsFolder, HubLayout.RIVER_SIGN)
 		HubWorldService._createPlayground(propsFolder, HubLayout.PLAYGROUND)
+		HubWorldService._createShippingBin(propsFolder, HubLayout.SHIPPING_BIN)
 	end)
 
 	runStep("nature", function()
@@ -197,6 +199,29 @@ function HubWorldService._buildWorld()
 	if builtCount > 0 then
 		folder:SetAttribute("BuildVersion", BUILD_VERSION)
 	end
+end
+
+function HubWorldService._createShippingBin(parent: Folder, binDef)
+	local bin = Instance.new("Part")
+	bin.Name = "ShippingBin"
+	bin.Anchored = true
+	bin.Size = Vector3.new(8, 6, 6)
+	bin.Position = binDef.position
+	bin.Color = Color3.fromRGB(102, 72, 44)
+	bin.Material = Enum.Material.WoodPlanks
+	bin.Parent = parent
+
+	local sign = Instance.new("Part")
+	sign.Name = "ShippingBinSign"
+	sign.Anchored = true
+	sign.CanCollide = false
+	sign.Size = Vector3.new(8, 2, 0.4)
+	sign.Position = binDef.position + Vector3.new(0, 4, 0)
+	sign.Color = Color3.fromRGB(55, 42, 32)
+	sign.Parent = parent
+	HubWorldService._createBillboard(sign, "Shipping Bin", "Ship crops — gold arrives tomorrow")
+
+	HubInteractionService.attachPrompt(bin, "ShippingBin")
 end
 
 function HubWorldService._createRiverSign(parent: Folder, riverSignDef)

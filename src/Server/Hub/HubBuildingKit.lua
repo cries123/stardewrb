@@ -7,6 +7,7 @@ local HubBuildingKit = {}
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HubLayout = require(ReplicatedStorage.Shared.Hub.HubLayout)
+local HubInteractionService = require(script.Parent.HubInteractionService)
 local GROUND_Y = HubLayout.GROUND_Y
 
 local SIGN_WOOD = Color3.fromRGB(55, 42, 32)
@@ -80,8 +81,8 @@ local function addWindows(parent: Instance, origin: Vector3, width: number, heig
 	end
 end
 
-local function addDoor(parent: Instance, origin: Vector3, depth: number)
-	createPart({
+local function addDoor(parent: Instance, origin: Vector3, depth: number, interactionId: string?)
+	local door = createPart({
 		Name = "Door",
 		Parent = parent,
 		Size = Vector3.new(4, 7, 0.5),
@@ -89,6 +90,12 @@ local function addDoor(parent: Instance, origin: Vector3, depth: number)
 		Color = DOOR_WOOD,
 		Material = Enum.Material.Wood,
 	})
+
+	if interactionId then
+		HubInteractionService.attachPrompt(door, interactionId)
+	end
+
+	return door
 end
 
 function HubBuildingKit.buildFallback(parent: Folder, def)
@@ -192,6 +199,7 @@ function HubBuildingKit.buildTownSquare(parent: Folder, def)
 		Material = Enum.Material.Wood,
 	})
 	createBillboard(board, def.name, def.subtitle)
+	HubInteractionService.attachPrompt(board, "NoticeBoard")
 
 	for _, offset in { Vector3.new(14, 0, 10), Vector3.new(-14, 0, 10), Vector3.new(14, 0, -10), Vector3.new(-14, 0, -10) } do
 		HubBuildingKit._createPlanter(folder, origin + offset)
@@ -244,7 +252,7 @@ function HubBuildingKit.buildPierres(parent: Folder, def)
 		Material = Enum.Material.WoodPlanks,
 	})
 
-	addDoor(folder, origin, depth)
+	addDoor(folder, origin, depth, "Pierres")
 	addWindows(folder, origin, width, height, depth)
 
 	local sign = createPart({
@@ -298,7 +306,7 @@ function HubBuildingKit.buildSaloon(parent: Folder, def)
 		window:SetAttribute("HubStreetLamp", true)
 	end
 
-	addDoor(folder, origin, depth)
+	addDoor(folder, origin, depth, "Saloon")
 
 	local sign = createPart({
 		Name = "NeonSign",

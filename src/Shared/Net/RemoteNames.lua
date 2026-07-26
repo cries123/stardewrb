@@ -8,6 +8,10 @@ local RemoteNames = {
 	InviteToFarm = "InviteToFarm",
 	TeleportResult = "TeleportResult",
 	PlayerStateUpdate = "PlayerStateUpdate",
+	BuyShopItem = "BuyShopItem",
+	ShipItem = "ShipItem",
+	EatFood = "EatFood",
+	HubActionResult = "HubActionResult",
 }
 
 return RemoteNames

@@ -205,4 +205,8 @@ HubLayout.PLAYGROUND = {
 	center = Vector3.new(0, HubLayout.GROUND_Y, 128),
 }
 
+HubLayout.SHIPPING_BIN = {
+	position = Vector3.new(28, HubLayout.GROUND_Y + 3, -8),
+}
+
 return HubLayout

@@ -299,19 +299,27 @@ function StardewHud._createVerticalBar(parent, name, fillColor, bgColor, positio
 end
 
 function StardewHud._buildSellHint()
-	if not PlaceType.isFarm() then
-		return
+	if PlaceType.isFarm() then
+		UiTheme.createLabel(screenGui, {
+			AnchorPoint = Vector2.new(0.5, 1),
+			Position = UDim2.new(0.5, 0, 0.98, -72),
+			Size = UDim2.fromOffset(220, 18),
+			Text = "Select crops, press R to sell",
+			TextColor3 = UiTheme.TextMuted,
+			TextSize = 12,
+			TextXAlignment = Enum.TextXAlignment.Center,
+		})
+	elseif PlaceType.isHub() then
+		UiTheme.createLabel(screenGui, {
+			AnchorPoint = Vector2.new(0.5, 1),
+			Position = UDim2.new(0.5, 0, 0.98, -72),
+			Size = UDim2.fromOffset(280, 18),
+			Text = "Walk up to shops — slots 5/6 food, press E to eat",
+			TextColor3 = UiTheme.TextMuted,
+			TextSize = 12,
+			TextXAlignment = Enum.TextXAlignment.Center,
+		})
 	end
-
-	UiTheme.createLabel(screenGui, {
-		AnchorPoint = Vector2.new(0.5, 1),
-		Position = UDim2.new(0.5, 0, 0.98, -72),
-		Size = UDim2.fromOffset(220, 18),
-		Text = "Select crops, press R to sell",
-		TextColor3 = UiTheme.TextMuted,
-		TextSize = 12,
-		TextXAlignment = Enum.TextXAlignment.Center,
-	})
 end
 
 function StardewHud._buildReturnButton()
@@ -483,6 +491,16 @@ function StardewHud._bindInput()
 				local count = ToolbarLayout.getItemCount(currentInventory, slotConfig)
 				if count > 0 then
 					Remotes.waitForEvent("SellItem"):FireServer(slotConfig.itemId, 1)
+				end
+			end
+		end
+
+		if input.KeyCode == Enum.KeyCode.E then
+			local slotConfig = FarmToolState.getSelectedSlotConfig()
+			if slotConfig and slotConfig.consumable and currentInventory then
+				local count = ToolbarLayout.getItemCount(currentInventory, slotConfig)
+				if count > 0 then
+					Remotes.waitForEvent("EatFood"):FireServer(slotConfig.itemId)
 				end
 			end
 		end

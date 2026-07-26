@@ -32,6 +32,22 @@ local ToolbarLayout = {
 			action = "Harvest",
 			sellable = true,
 		},
+		{
+			slot = 5,
+			itemId = "Salad",
+			kind = "food",
+			icon = "Sal",
+			action = "Eat",
+			consumable = true,
+		},
+		{
+			slot = 6,
+			itemId = "Bread",
+			kind = "food",
+			icon = "Brd",
+			action = "Eat",
+			consumable = true,
+		},
 	},
 }
 
@@ -74,6 +90,8 @@ function ToolbarLayout.getItemCount(inventory, slotConfig)
 		return inventory.Seeds[slotConfig.itemId] or 0
 	elseif slotConfig.kind == "harvest" then
 		return inventory.Harvest[slotConfig.itemId] or 0
+	elseif slotConfig.kind == "food" then
+		return inventory.Food[slotConfig.itemId] or 0
 	end
 
 	return 0

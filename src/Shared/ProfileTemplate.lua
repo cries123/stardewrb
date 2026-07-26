@@ -35,7 +35,10 @@ local ProfileTemplate = {
 		Harvest = {
 			Tomato = 0,
 		},
+		Food = {},
 	},
+
+	PendingShipment = {},
 
 	FarmState = {
 		-- Reserved-server access code for this player's private farm instance.

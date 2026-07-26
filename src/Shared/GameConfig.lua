@@ -21,7 +21,7 @@ local GameConfig = {
 		Harvest = 1,
 	},
 
-	StartingMoney = 100,
+	StartingMoney = 140,
 
 	Places = {
 		Hub = {
@@ -73,8 +73,48 @@ local GameConfig = {
 		TomatoSeed = {
 			CropId = "Tomato",
 			DisplayName = "Tomato Seeds",
+			BuyPrice = 20,
 		},
 	},
+
+	Food = {
+		Salad = {
+			DisplayName = "Salad",
+			BuyPrice = 150,
+			EnergyRestore = 40,
+			ShopId = "Saloon",
+		},
+		Bread = {
+			DisplayName = "Bread",
+			BuyPrice = 80,
+			EnergyRestore = 20,
+			ShopId = "Saloon",
+		},
+	},
+
+	Shops = {
+		Pierres = {
+			DisplayName = "Pierre's General Store",
+			OpenHour = 9,
+			CloseHour = 17,
+			ClosedWeekdays = { "Wed" },
+			Items = {
+				{ itemId = "TomatoSeed", kind = "seed" },
+			},
+		},
+		Saloon = {
+			DisplayName = "The Stardrop Saloon",
+			OpenHour = 12,
+			CloseHour = 24,
+			ClosedWeekdays = {},
+			Items = {
+				{ itemId = "Salad", kind = "food" },
+				{ itemId = "Bread", kind = "food" },
+			},
+		},
+	},
+
+	Festivals = {},
 }
 
 if not GameConfig.ActionEnergyCost then
