@@ -25,6 +25,12 @@ function StudioSetup.init()
 end
 
 function StudioSetup._ensureFarmSpawn()
+	local baseplate = workspace:FindFirstChild("Baseplate")
+	if baseplate and baseplate:IsA("BasePart") then
+		baseplate.Transparency = 1
+		baseplate.CanCollide = false
+	end
+
 	local spawn = workspace:FindFirstChild("FarmSpawn")
 	if not spawn then
 		spawn = Instance.new("SpawnLocation")
