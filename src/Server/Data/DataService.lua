@@ -60,6 +60,9 @@ function DataService._loadProfile(player: Player)
 	profile:AddUserId(player.UserId)
 	profile:Reconcile()
 
+	local PlayerDataUtil = require(ReplicatedStorage.Shared.Data.PlayerDataUtil)
+	PlayerDataUtil.ensureDefaults(profile.Data)
+
 	profile:ListenToRelease(function()
 		DataService._profiles[player] = nil
 		if DataService._skipReleaseKick[player] then

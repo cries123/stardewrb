@@ -125,6 +125,14 @@ function FarmClient._getTargetCell(): (number?, number?)
 		end
 	end
 
+	-- Use mouse world position so the farm platform does not block tile selection.
+	if mouse.Hit then
+		local x, y = GridMath.worldToCell(mouse.Hit.Position)
+		if x then
+			return x, y
+		end
+	end
+
 	local character = player.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart")
 	if root then
@@ -149,13 +157,12 @@ end
 
 function FarmClient._bindInput()
 	UserInputService.InputBegan:Connect(function(input, processed)
-		if processed then
+		if input.UserInputType ~= Enum.UserInputType.MouseButton1 then
 			return
 		end
 
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			FarmClient._performAction()
-		end
+		-- Allow farming clicks even when Roblox marks UI as processed.
+		FarmClient._performAction()
 	end)
 end
 

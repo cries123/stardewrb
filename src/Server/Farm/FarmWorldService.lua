@@ -59,6 +59,7 @@ function FarmWorldService._buildWorld()
 	platform.Position = center + Vector3.new(0, -0.5, 0)
 	platform.Material = Enum.Material.Grass
 	platform.Color = Color3.fromRGB(76, 120, 68)
+	platform.CanQuery = false
 	platform.Parent = folder
 
 	FarmWorldService._createWalls(folder, center, platformSize, wallHeight)

@@ -8,6 +8,7 @@ local DataService = require(script.Parent.Parent.Data.DataService)
 local TimeService = require(script.Parent.Parent.Time.TimeService)
 local Remotes = require(script.Parent.Parent.Net.Remotes)
 local PlayerStateService = require(script.Parent.Parent.Data.PlayerStateService)
+local PlayerDataUtil = require(ReplicatedStorage.Shared.Data.PlayerDataUtil)
 
 local FarmGridService = {}
 
@@ -16,6 +17,7 @@ local function getEnergyCost(action: string): number
 end
 
 local function trySpendEnergy(data, action: string): boolean
+	PlayerDataUtil.ensureDefaults(data)
 	local cost = getEnergyCost(action)
 	if data.Stats.Energy < cost then
 		return false
@@ -38,6 +40,7 @@ function FarmGridService.onNewGameDay(gameDay: number)
 	for _, player in game:GetService("Players"):GetPlayers() do
 		local data = DataService.getData(player)
 		if data then
+			PlayerDataUtil.ensureDefaults(data)
 			GridLogic.advanceGrowthForDay(data.FarmState.Grid, gameDay)
 			data.Stats.Energy = data.Stats.MaxEnergy
 			FarmGridService._replicateGrid(player)
@@ -83,23 +86,21 @@ function FarmGridService.handleAction(player: Player, action: string, x: number,
 		return
 	end
 
+	PlayerDataUtil.ensureDefaults(data)
 	local currentDay = TimeService.getCurrentGameDay()
 
 	if action == "Till" then
-		if not trySpendEnergy(data, action) then
-			return
-		end
 		if data.Inventory.Tools.Hoe < 1 then
 			return
 		end
 		if not GridMath.canTill(cell) then
 			return
 		end
-		GridLogic.tillCell(cell)
-	elseif action == "Plant" then
 		if not trySpendEnergy(data, action) then
 			return
 		end
+		GridLogic.tillCell(cell)
+	elseif action == "Plant" then
 		local seedId = "TomatoSeed"
 		local seedConfig = GameConfig.Seeds[seedId]
 		if not seedConfig then
@@ -111,25 +112,28 @@ function FarmGridService.handleAction(player: Player, action: string, x: number,
 		if not GridMath.canPlant(cell) then
 			return
 		end
+		if not trySpendEnergy(data, action) then
+			return
+		end
 
 		data.Inventory.Seeds[seedId] -= 1
 		GridLogic.plantCell(cell, seedConfig.CropId, currentDay)
 	elseif action == "Water" then
-		if not trySpendEnergy(data, action) then
-			return
-		end
 		if data.Inventory.Tools.WateringCan < 1 then
 			return
 		end
 		if not GridMath.canWater(cell, currentDay) then
 			return
 		end
-		GridLogic.waterCell(cell, currentDay)
-	elseif action == "Harvest" then
 		if not trySpendEnergy(data, action) then
 			return
 		end
+		GridLogic.waterCell(cell, currentDay)
+	elseif action == "Harvest" then
 		if not GridMath.canHarvest(cell) then
+			return
+		end
+		if not trySpendEnergy(data, action) then
 			return
 		end
 
