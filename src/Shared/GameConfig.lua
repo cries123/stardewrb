@@ -86,4 +86,12 @@ if not GameConfig.ActionEnergyCost then
 	}
 end
 
+if not GameConfig.Hub then
+	GameConfig.Hub = {
+		Origin = Vector3.new(0, 0, 0),
+		PlatformSize = 320,
+		WallHeight = 20,
+	}
+end
+
 return GameConfig

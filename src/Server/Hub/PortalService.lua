@@ -13,6 +13,8 @@ function PortalService.init()
 		return
 	end
 
+	PortalService._ensureFallbackPortal()
+
 	for _, portal in CollectionService:GetTagged(PORTAL_TAG) do
 		PortalService._bindPortal(portal)
 	end
@@ -20,6 +22,23 @@ function PortalService.init()
 	CollectionService:GetInstanceAddedSignal(PORTAL_TAG):Connect(function(portal)
 		PortalService._bindPortal(portal)
 	end)
+end
+
+function PortalService._ensureFallbackPortal()
+	if CollectionService:GetTagged(PORTAL_TAG)[1] then
+		return
+	end
+
+	warn("[PortalService] No FarmPortal found — HubWorld may not have built. Creating fallback portal.")
+	local portal = Instance.new("Part")
+	portal.Name = "FarmPortal"
+	portal.Anchored = true
+	portal.Size = Vector3.new(8, 10, 2)
+	portal.Position = Vector3.new(0, 5, -118)
+	portal.Color = Color3.fromRGB(120, 90, 255)
+	portal.Material = Enum.Material.Neon
+	portal.Parent = workspace
+	CollectionService:AddTag(portal, PORTAL_TAG)
 end
 
 function PortalService._bindPortal(portal: Instance)

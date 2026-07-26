@@ -13,11 +13,23 @@ local SEASON_ATTR = "HubSeasonPart"
 
 function HubWorldService.init()
 	if not PlaceType.isHub() then
+		print("[HubWorldService] Skipped — place is not Hub")
 		return
 	end
 
-	HubWorldService._clearDefaultSpawns()
-	HubWorldService._buildWorld()
+	print("[HubWorldService] Building Pelican Town...")
+
+	local ok, err = pcall(function()
+		HubWorldService._clearDefaultSpawns()
+		HubWorldService._buildWorld()
+	end)
+
+	if not ok then
+		warn("[HubWorldService] Failed to build town:", err)
+		return
+	end
+
+	print("[HubWorldService] Pelican Town ready — look for workspace.HubWorld")
 end
 
 function HubWorldService._clearDefaultSpawns()
