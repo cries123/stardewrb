@@ -34,7 +34,7 @@ function PortalService._ensureFallbackPortal()
 	portal.Name = "FarmPortal"
 	portal.Anchored = true
 	portal.Size = Vector3.new(8, 10, 2)
-	portal.Position = Vector3.new(0, 5, -118)
+	portal.Position = Vector3.new(0, 8, -118)
 	portal.Color = Color3.fromRGB(120, 90, 255)
 	portal.Material = Enum.Material.Neon
 	portal.Parent = workspace

@@ -143,6 +143,7 @@ The hub is built procedurally by `HubWorldService` when you serve `default.proje
 
 Edit layout in `src/Shared/Hub/HubLayout.lua` and colors in `src/Shared/Hub/HubSeasonPalettes.lua`.
 
+<<<<<<< HEAD
 **Visual pass (v2):** Terrain hills + western river, thin textured paths, layered trees, lamp posts (on after 6 PM), cozy building kits for Pierre's/Saloon/Clinic/Town Square, bloom + atmosphere lighting.
 
 **Hub looks empty (only purple portal / baseplate)?**
@@ -153,6 +154,8 @@ Edit layout in `src/Shared/Hub/HubLayout.lua` and colors in `src/Shared/Hub/HubS
 5. Play → Output should say `[HubWorldService] Pelican Town ready`
 6. `workspace` should contain a `HubWorld` folder with Buildings, Walkways, Nature
 
+=======
+>>>>>>> origin/main
 ## Global time sync
 
 `TimeMath` derives the in-game clock from `os.time()` and a shared `TimeEpoch` in `GameConfig`. Every server computes identical `gameDay`, `dayProgress`, and `clockTime`, so Hub and Farm lighting stay aligned.
