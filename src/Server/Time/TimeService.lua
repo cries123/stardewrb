@@ -48,7 +48,7 @@ function TimeService.init()
 end
 
 function TimeService._onNewDay(gameDay: number)
-	local farmGridService = require(script.Parent.Farm.FarmGridService)
+	local farmGridService = require(script.Parent.Parent.Farm.FarmGridService)
 	farmGridService.onNewGameDay(gameDay)
 end
 

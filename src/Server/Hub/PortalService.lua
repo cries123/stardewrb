@@ -2,7 +2,7 @@ local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local PlaceType = require(ReplicatedStorage.Shared.PlaceType)
-local FarmTeleportService = require(script.Parent.Teleport.FarmTeleportService)
+local FarmTeleportService = require(script.Parent.Parent.Teleport.FarmTeleportService)
 
 local PortalService = {}
 

@@ -2,7 +2,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local PlaceType = require(ReplicatedStorage.Shared.PlaceType)
-local Remotes = require(script.Parent.Net.Remotes)
+local Remotes = require(script.Parent.Parent.Net.Remotes)
 
 local HubClient = {}
 
