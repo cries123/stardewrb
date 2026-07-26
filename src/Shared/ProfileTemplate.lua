@@ -1,4 +1,4 @@
-local GameConfig = require(script.Parent.GameConfig)
+local GameConfig = require(script.Parent.Parent.GameConfig)
 
 local function createEmptyGrid()
 	local grid = {}
@@ -15,6 +15,15 @@ local function createEmptyGrid()
 end
 
 local ProfileTemplate = {
+	Money = GameConfig.StartingMoney,
+
+	Stats = {
+		Energy = 100,
+		MaxEnergy = 100,
+		Health = 100,
+		MaxHealth = 100,
+	},
+
 	Inventory = {
 		Tools = {
 			Hoe = 1,

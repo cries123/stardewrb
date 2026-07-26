@@ -10,6 +10,18 @@ local GameConfig = {
 
 	RealSecondsPerGameDay = 1200, -- 20 real minutes = 1 in-game day
 	DayStartHour = 6, -- 6 AM when a new day begins visually
+	DaysPerSeason = 28,
+	Seasons = { "Spring", "Summer", "Fall", "Winter" },
+	Weekdays = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" },
+
+	ActionEnergyCost = {
+		Till = 2,
+		Water = 2,
+		Plant = 2,
+		Harvest = 1,
+	},
+
+	StartingMoney = 100,
 
 	Places = {
 		Hub = {
@@ -42,6 +54,7 @@ local GameConfig = {
 			GrowthDays = 1, -- days after watering to become harvestable
 			HarvestItemId = "Tomato",
 			HarvestAmount = 1,
+			SellPrice = 20,
 		},
 	},
 

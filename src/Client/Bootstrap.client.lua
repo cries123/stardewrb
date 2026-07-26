@@ -1,11 +1,11 @@
 local TimeClient = require(script.Time.TimeClient)
 local FarmClient = require(script.Farm.FarmClient)
 local HubClient = require(script.Hub.HubClient)
-local FarmUi = require(script.UI.FarmUi)
+local StardewHud = require(script.UI.StardewHud)
 local HubUi = require(script.UI.HubUi)
 
 TimeClient.init()
 FarmClient.init()
 HubClient.init()
-FarmUi.init()
+StardewHud.init()
 HubUi.init()

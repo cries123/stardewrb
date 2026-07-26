@@ -42,13 +42,12 @@ function HubUi._build()
 	local panel = Instance.new("Frame")
 	panel.Name = "HubPanel"
 	panel.AnchorPoint = Vector2.new(0, 0)
-	panel.Position = UDim2.fromOffset(16, 16)
-	panel.Size = UDim2.fromOffset(260, 280)
-	panel.BackgroundColor3 = UiTheme.Panel
+	panel.Position = UDim2.fromOffset(16, 160)
+	panel.Size = UDim2.fromOffset(260, 260)
+	panel.BackgroundColor3 = UiTheme.WoodMid
 	panel.BorderSizePixel = 0
 	panel.Parent = screenGui
-	UiTheme.applyCorner(panel)
-	UiTheme.applyStroke(panel)
+	UiTheme.applyWoodPanel(panel)
 
 	UiTheme.createLabel(panel, {
 		Position = UDim2.fromOffset(12, 10),

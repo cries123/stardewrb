@@ -1,22 +1,28 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local ToolbarLayout = require(ReplicatedStorage.Shared.Hud.ToolbarLayout)
+
 local FarmToolState = {
-	selected = "Hoe",
+	selectedSlot = 1,
 	_listeners = {},
 }
 
-local TOOL_ORDER = { "Hoe", "WateringCan", "TomatoSeed", "Harvest" }
-
-function FarmToolState.getSelected()
-	return FarmToolState.selected
+function FarmToolState.getSelectedSlot(): number
+	return FarmToolState.selectedSlot
 end
 
-function FarmToolState.setSelected(toolId: string)
-	if FarmToolState.selected == toolId then
+function FarmToolState.setSelectedSlot(slotIndex: number)
+	if slotIndex < 1 or slotIndex > ToolbarLayout.SLOT_COUNT then
 		return
 	end
 
-	FarmToolState.selected = toolId
+	if FarmToolState.selectedSlot == slotIndex then
+		return
+	end
+
+	FarmToolState.selectedSlot = slotIndex
 	for _, listener in FarmToolState._listeners do
-		task.spawn(listener, toolId)
+		task.spawn(listener, slotIndex)
 	end
 end
 
@@ -30,21 +36,35 @@ function FarmToolState.onChanged(listener)
 	end
 end
 
-function FarmToolState.getToolOrder()
-	return TOOL_ORDER
+function FarmToolState.getSelectedSlotConfig()
+	return ToolbarLayout.getSlotConfig(FarmToolState.selectedSlot)
 end
 
-function FarmToolState.getActionForTool(toolId: string): string?
-	if toolId == "Hoe" then
-		return "Till"
-	elseif toolId == "WateringCan" then
-		return "Water"
-	elseif toolId == "TomatoSeed" then
-		return "Plant"
-	elseif toolId == "Harvest" then
-		return "Harvest"
+function FarmToolState.getSelectedAction(): string?
+	local slotConfig = FarmToolState.getSelectedSlotConfig()
+	if slotConfig then
+		return slotConfig.action
 	end
 	return nil
+end
+
+-- Backwards compatibility for keyboard code paths
+function FarmToolState.getSelected()
+	local slotConfig = FarmToolState.getSelectedSlotConfig()
+	return slotConfig and slotConfig.itemId or "Hoe"
+end
+
+function FarmToolState.setSelected(toolId: string)
+	for _, slot in ToolbarLayout.HOTBAR do
+		if slot.itemId == toolId then
+			FarmToolState.setSelectedSlot(slot.slot)
+			return
+		end
+	end
+end
+
+function FarmToolState.getActionForTool(_toolId: string): string?
+	return FarmToolState.getSelectedAction()
 end
 
 return FarmToolState

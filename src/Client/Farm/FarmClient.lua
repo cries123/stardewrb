@@ -140,7 +140,7 @@ function FarmClient._performAction()
 		return
 	end
 
-	local action = FarmToolState.getActionForTool(FarmToolState.getSelected())
+	local action = FarmToolState.getSelectedAction()
 
 	if action then
 		Remotes.waitForEvent("FarmAction"):FireServer(action, x, y)
@@ -153,15 +153,7 @@ function FarmClient._bindInput()
 			return
 		end
 
-		if input.KeyCode == Enum.KeyCode.One then
-			FarmToolState.setSelected("Hoe")
-		elseif input.KeyCode == Enum.KeyCode.Two then
-			FarmToolState.setSelected("WateringCan")
-		elseif input.KeyCode == Enum.KeyCode.Three then
-			FarmToolState.setSelected("TomatoSeed")
-		elseif input.KeyCode == Enum.KeyCode.Four then
-			FarmToolState.setSelected("Harvest")
-		elseif input.UserInputType == Enum.UserInputType.MouseButton1 then
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
 			FarmClient._performAction()
 		end
 	end)

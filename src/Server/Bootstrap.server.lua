@@ -11,6 +11,7 @@ local ReturnPortalService = require(script.Parent.Farm.ReturnPortalService)
 local FarmWorldService = require(script.Parent.Farm.FarmWorldService)
 local StudioSetup = require(script.Parent.Studio.StudioSetup)
 local PlayerStateService = require(script.Parent.Data.PlayerStateService)
+local SellService = require(script.Parent.Economy.SellService)
 
 local DataServiceModule = DataService
 local TimeServiceModule = TimeService
@@ -22,6 +23,7 @@ DataServiceModule.init()
 TimeServiceModule.init()
 FarmTeleportServiceModule.init()
 FarmGridServiceModule.init()
+SellService.init()
 FarmWorldService.init()
 PortalServiceModule.init()
 ReturnPortalService.init()

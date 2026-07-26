@@ -11,6 +11,19 @@ local PlayerStateService = require(script.Parent.Parent.Data.PlayerStateService)
 
 local FarmGridService = {}
 
+local function getEnergyCost(action: string): number
+	return GameConfig.ActionEnergyCost[action] or 0
+end
+
+local function trySpendEnergy(data, action: string): boolean
+	local cost = getEnergyCost(action)
+	if data.Stats.Energy < cost then
+		return false
+	end
+	data.Stats.Energy -= cost
+	return true
+end
+
 function FarmGridService.init()
 	if not PlaceType.isFarm() then
 		return
@@ -26,6 +39,7 @@ function FarmGridService.onNewGameDay(gameDay: number)
 		local data = DataService.getData(player)
 		if data then
 			GridLogic.advanceGrowthForDay(data.FarmState.Grid, gameDay)
+			data.Stats.Energy = data.Stats.MaxEnergy
 			FarmGridService._replicateGrid(player)
 		end
 	end
@@ -72,6 +86,9 @@ function FarmGridService.handleAction(player: Player, action: string, x: number,
 	local currentDay = TimeService.getCurrentGameDay()
 
 	if action == "Till" then
+		if not trySpendEnergy(data, action) then
+			return
+		end
 		if data.Inventory.Tools.Hoe < 1 then
 			return
 		end
@@ -80,6 +97,9 @@ function FarmGridService.handleAction(player: Player, action: string, x: number,
 		end
 		GridLogic.tillCell(cell)
 	elseif action == "Plant" then
+		if not trySpendEnergy(data, action) then
+			return
+		end
 		local seedId = "TomatoSeed"
 		local seedConfig = GameConfig.Seeds[seedId]
 		if not seedConfig then
@@ -95,6 +115,9 @@ function FarmGridService.handleAction(player: Player, action: string, x: number,
 		data.Inventory.Seeds[seedId] -= 1
 		GridLogic.plantCell(cell, seedConfig.CropId, currentDay)
 	elseif action == "Water" then
+		if not trySpendEnergy(data, action) then
+			return
+		end
 		if data.Inventory.Tools.WateringCan < 1 then
 			return
 		end
@@ -103,6 +126,9 @@ function FarmGridService.handleAction(player: Player, action: string, x: number,
 		end
 		GridLogic.waterCell(cell, currentDay)
 	elseif action == "Harvest" then
+		if not trySpendEnergy(data, action) then
+			return
+		end
 		if not GridMath.canHarvest(cell) then
 			return
 		end

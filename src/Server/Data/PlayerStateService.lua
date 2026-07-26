@@ -13,6 +13,8 @@ function PlayerStateService.replicate(player: Player)
 
 	Remotes.getEvent("PlayerStateUpdate"):FireClient(player, {
 		Inventory = data.Inventory,
+		Money = data.Money,
+		Stats = data.Stats,
 	})
 end
 
