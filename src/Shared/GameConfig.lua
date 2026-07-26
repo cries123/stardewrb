@@ -32,6 +32,8 @@ local GameConfig = {
 		GridHeight = 8,
 		CellSize = 4, -- studs per grid cell
 		Origin = Vector3.new(0, 0, 0), -- world-space origin of cell (1,1)
+		PlatformSize = 96, -- large safe ground so players do not fall off
+		WallHeight = 16,
 	},
 
 	Crops = {

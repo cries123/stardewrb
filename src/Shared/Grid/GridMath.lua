@@ -1,7 +1,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local GameConfig = require(ReplicatedStorage.Shared.GameConfig)
-local GridConstants = require(ReplicatedStorage.Shared.Grid.GridConstants)
 
 local GridMath = {}
 
@@ -10,6 +9,18 @@ function GridMath.isInBounds(x: number, y: number): boolean
 		and x <= GameConfig.Farm.GridWidth
 		and y >= 1
 		and y <= GameConfig.Farm.GridHeight
+end
+
+function GridMath.getGridCenter(): Vector3
+	local widthStuds = GameConfig.Farm.GridWidth * GameConfig.Farm.CellSize
+	local heightStuds = GameConfig.Farm.GridHeight * GameConfig.Farm.CellSize
+	local origin = GameConfig.Farm.Origin
+
+	return Vector3.new(
+		origin.X + widthStuds / 2,
+		origin.Y,
+		origin.Z + heightStuds / 2
+	)
 end
 
 function GridMath.worldToCell(worldPosition: Vector3): (number?, number?)
@@ -45,10 +56,12 @@ function GridMath.getCell(grid, x: number, y: number)
 end
 
 function GridMath.canTill(cell): boolean
+	local GridConstants = require(script.Parent.GridConstants)
 	return cell.soil == GridConstants.Soil.Empty and cell.crop == nil
 end
 
 function GridMath.canPlant(cell): boolean
+	local GridConstants = require(script.Parent.GridConstants)
 	return cell.soil == GridConstants.Soil.Tilled and cell.crop == nil
 end
 
@@ -57,12 +70,12 @@ function GridMath.canWater(cell, currentGameDay: number): boolean
 		return false
 	end
 
+	local GridConstants = require(script.Parent.GridConstants)
 	local stage = cell.crop.stage
 	if stage == GridConstants.CropStage.Ready then
 		return false
 	end
 
-	-- One watering action per in-game day.
 	if cell.crop.lastWateredDay == currentGameDay then
 		return false
 	end
@@ -71,6 +84,7 @@ function GridMath.canWater(cell, currentGameDay: number): boolean
 end
 
 function GridMath.canHarvest(cell): boolean
+	local GridConstants = require(script.Parent.GridConstants)
 	return cell.crop ~= nil and cell.crop.stage == GridConstants.CropStage.Ready
 end
 

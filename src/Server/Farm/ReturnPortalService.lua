@@ -8,27 +8,10 @@ local ReturnPortalService = {}
 
 local PORTAL_TAG = "HubPortal"
 
-local function ensureDefaultPortal()
-	if CollectionService:GetTagged(PORTAL_TAG)[1] then
-		return
-	end
-
-	local portal = Instance.new("Part")
-	portal.Name = "HubPortal"
-	portal.Anchored = true
-	portal.Size = Vector3.new(6, 10, 2)
-	portal.Position = Vector3.new(-20, 5, 0)
-	portal.Color = Color3.fromRGB(255, 180, 60)
-	portal.Parent = workspace
-	CollectionService:AddTag(portal, PORTAL_TAG)
-end
-
 function ReturnPortalService.init()
 	if not PlaceType.isFarm() then
 		return
 	end
-
-	ensureDefaultPortal()
 
 	for _, portal in CollectionService:GetTagged(PORTAL_TAG) do
 		ReturnPortalService._bindPortal(portal)
