@@ -11,7 +11,6 @@ function HubClient.init()
 		return
 	end
 
-	local teleportToFarm = Remotes.waitForEvent("TeleportToFarm")
 	local teleportResult = Remotes.waitForEvent("TeleportResult")
 
 	teleportResult.OnClientEvent:Connect(function(success, message)
@@ -19,24 +18,6 @@ function HubClient.init()
 			warn(`[Hub] Teleport failed: {message}`)
 		end
 	end)
-
-	-- Optional: bind a GUI button named "FarmPortalButton" in PlayerGui.
-	local player = Players.LocalPlayer
-	player.PlayerGui.ChildAdded:Connect(function(child)
-		if child.Name == "FarmPortalButton" and child:IsA("TextButton") then
-			child.MouseButton1Click:Connect(function()
-				teleportToFarm:FireServer()
-			end)
-		end
-	end)
-
-	for _, child in player.PlayerGui:GetChildren() do
-		if child.Name == "FarmPortalButton" and child:IsA("TextButton") then
-			child.MouseButton1Click:Connect(function()
-				teleportToFarm:FireServer()
-			end)
-		end
-	end
 end
 
 return HubClient

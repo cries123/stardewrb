@@ -20,6 +20,10 @@ function FarmTeleportService.init()
 		Remotes.getFunction("InviteToFarm").OnServerInvoke = function(player, targetPlayer)
 			return FarmTeleportService.inviteFriendToFarm(player, targetPlayer)
 		end
+	elseif PlaceType.isFarm() then
+		Remotes.getEvent("TeleportToHub").OnServerEvent:Connect(function(player)
+			FarmTeleportService.teleportPlayerToHub(player)
+		end)
 	end
 
 	TeleportService.TeleportInitFailed:Connect(function(player, result, errorMessage)
@@ -95,6 +99,45 @@ function FarmTeleportService.teleportPlayerToFarm(player: Player)
 
 	if not ok then
 		warn(`[FarmTeleport] TeleportAsync failed: {err}`)
+		Remotes.getEvent("TeleportResult"):FireClient(player, false, tostring(err))
+	end
+end
+
+function FarmTeleportService.teleportPlayerToHub(player: Player)
+	local profile = DataService.waitForProfile(player)
+	if not profile then
+		Remotes.getEvent("TeleportResult"):FireClient(player, false, "Profile not loaded")
+		return
+	end
+
+	local hubPlaceId = GameConfig.Places.Hub.PlaceId
+	if hubPlaceId == 0 then
+		Remotes.getEvent("TeleportResult"):FireClient(player, false, "Hub place is not configured")
+		return
+	end
+
+	local teleportData = {
+		[TELEPORT_DATA_KEY] = {
+			userId = player.UserId,
+			returningToHub = true,
+			sentAt = os.time(),
+		},
+	}
+
+	if not DataService.releaseForTeleport(player) then
+		Remotes.getEvent("TeleportResult"):FireClient(player, false, "Failed to release data session")
+		return
+	end
+
+	local teleportOptions = Instance.new("TeleportOptions")
+	teleportOptions:SetTeleportData(teleportData)
+
+	local ok, err = pcall(function()
+		TeleportService:TeleportAsync(hubPlaceId, { player }, teleportOptions)
+	end)
+
+	if not ok then
+		warn(`[FarmTeleport] Hub teleport failed: {err}`)
 		Remotes.getEvent("TeleportResult"):FireClient(player, false, tostring(err))
 	end
 end

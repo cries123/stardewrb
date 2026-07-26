@@ -7,6 +7,7 @@ local GridMath = require(ReplicatedStorage.Shared.Grid.GridMath)
 local GridConstants = require(ReplicatedStorage.Shared.Grid.GridConstants)
 local PlaceType = require(ReplicatedStorage.Shared.PlaceType)
 local Remotes = require(script.Parent.Parent.Net.Remotes)
+local FarmToolState = require(script.Parent.FarmToolState)
 
 local FarmClient = {}
 
@@ -15,7 +16,6 @@ local mouse = player:GetMouse()
 
 local currentGrid = nil
 local plotFolder = nil
-local selectedTool = "Hoe" -- Hoe | WateringCan | TomatoSeed | Harvest
 
 local SOIL_COLORS = {
 	Empty = Color3.fromRGB(88, 130, 59),
@@ -140,16 +140,7 @@ function FarmClient._performAction()
 		return
 	end
 
-	local action
-	if selectedTool == "Hoe" then
-		action = "Till"
-	elseif selectedTool == "WateringCan" then
-		action = "Water"
-	elseif selectedTool == "TomatoSeed" then
-		action = "Plant"
-	elseif selectedTool == "Harvest" then
-		action = "Harvest"
-	end
+	local action = FarmToolState.getActionForTool(FarmToolState.getSelected())
 
 	if action then
 		Remotes.waitForEvent("FarmAction"):FireServer(action, x, y)
@@ -163,13 +154,13 @@ function FarmClient._bindInput()
 		end
 
 		if input.KeyCode == Enum.KeyCode.One then
-			selectedTool = "Hoe"
+			FarmToolState.setSelected("Hoe")
 		elseif input.KeyCode == Enum.KeyCode.Two then
-			selectedTool = "WateringCan"
+			FarmToolState.setSelected("WateringCan")
 		elseif input.KeyCode == Enum.KeyCode.Three then
-			selectedTool = "TomatoSeed"
+			FarmToolState.setSelected("TomatoSeed")
 		elseif input.KeyCode == Enum.KeyCode.Four then
-			selectedTool = "Harvest"
+			FarmToolState.setSelected("Harvest")
 		elseif input.UserInputType == Enum.UserInputType.MouseButton1 then
 			FarmClient._performAction()
 		end

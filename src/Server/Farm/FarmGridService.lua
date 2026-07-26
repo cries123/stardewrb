@@ -7,6 +7,7 @@ local PlaceType = require(ReplicatedStorage.Shared.PlaceType)
 local DataService = require(script.Parent.Parent.Data.DataService)
 local TimeService = require(script.Parent.Parent.Time.TimeService)
 local Remotes = require(script.Parent.Parent.Net.Remotes)
+local PlayerStateService = require(script.Parent.Parent.Data.PlayerStateService)
 
 local FarmGridService = {}
 
@@ -37,6 +38,7 @@ function FarmGridService._replicateGrid(player: Player)
 	end
 
 	Remotes.getEvent("FarmGridUpdate"):FireClient(player, data.FarmState.Grid)
+	PlayerStateService.replicate(player)
 end
 
 function FarmGridService._validateCell(player: Player, x, y)
