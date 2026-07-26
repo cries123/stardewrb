@@ -1,6 +1,7 @@
 local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local GameConfig = require(ReplicatedStorage.Shared.GameConfig)
 local PlaceType = require(ReplicatedStorage.Shared.PlaceType)
@@ -10,6 +11,18 @@ local Remotes = require(script.Parent.Parent.Net.Remotes)
 local FarmTeleportService = {}
 
 local TELEPORT_DATA_KEY = "StardewRB"
+
+local function notifyTeleportFailure(player: Player, message: string)
+	DataService.reloadProfile(player)
+	Remotes.getEvent("TeleportResult"):FireClient(player, false, message)
+end
+
+local function canTeleportInCurrentSession(): (boolean, string?)
+	if RunService:IsStudio() then
+		return false, "Teleport only works in a published live game (not Studio Play test)"
+	end
+	return true
+end
 
 function FarmTeleportService.init()
 	if PlaceType.isHub() then
@@ -28,7 +41,7 @@ function FarmTeleportService.init()
 
 	TeleportService.TeleportInitFailed:Connect(function(player, result, errorMessage)
 		warn(`[FarmTeleport] Init failed for {player.Name}: {result} {errorMessage}`)
-		Remotes.getEvent("TeleportResult"):FireClient(player, false, tostring(result))
+		notifyTeleportFailure(player, tostring(result))
 	end)
 end
 
@@ -58,6 +71,12 @@ function FarmTeleportService._getOrCreateAccessCode(player: Player, data)
 end
 
 function FarmTeleportService.teleportPlayerToFarm(player: Player)
+	local canTeleport, studioMessage = canTeleportInCurrentSession()
+	if not canTeleport then
+		notifyTeleportFailure(player, studioMessage)
+		return
+	end
+
 	local profile = DataService.waitForProfile(player)
 	if not profile then
 		Remotes.getEvent("TeleportResult"):FireClient(player, false, "Profile not loaded")
@@ -99,11 +118,17 @@ function FarmTeleportService.teleportPlayerToFarm(player: Player)
 
 	if not ok then
 		warn(`[FarmTeleport] TeleportAsync failed: {err}`)
-		Remotes.getEvent("TeleportResult"):FireClient(player, false, tostring(err))
+		notifyTeleportFailure(player, tostring(err))
 	end
 end
 
 function FarmTeleportService.teleportPlayerToHub(player: Player)
+	local canTeleport, studioMessage = canTeleportInCurrentSession()
+	if not canTeleport then
+		notifyTeleportFailure(player, studioMessage)
+		return
+	end
+
 	local profile = DataService.waitForProfile(player)
 	if not profile then
 		Remotes.getEvent("TeleportResult"):FireClient(player, false, "Profile not loaded")
@@ -138,7 +163,7 @@ function FarmTeleportService.teleportPlayerToHub(player: Player)
 
 	if not ok then
 		warn(`[FarmTeleport] Hub teleport failed: {err}`)
-		Remotes.getEvent("TeleportResult"):FireClient(player, false, tostring(err))
+		notifyTeleportFailure(player, tostring(err))
 	end
 end
 
@@ -185,6 +210,7 @@ function FarmTeleportService.inviteFriendToFarm(hostPlayer: Player, guestPlayer:
 	end)
 
 	if not ok then
+		DataService.reloadProfile(guestPlayer)
 		return false, tostring(err)
 	end
 
