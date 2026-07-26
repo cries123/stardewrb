@@ -140,9 +140,20 @@ When Place IDs are still `0`, set in `GameConfig.lua`:
 StudioPlaceTypeOverride = "Farm", -- or "Hub"
 ```
 
-Or set `game:SetAttribute("PlaceType", "Farm")` before Play for farm grid testing.
+Or connect Rojo with the matching project file (`farm.project.json` injects `PlaceType = Farm` automatically).
 
 > TeleportService reserved servers require published places and cannot be fully tested in unpublished Studio sessions.
+
+## Farm place shows nothing in Studio
+
+1. **Use the farm Rojo project** — `rojo serve farm.project.json` (not `default.project.json`).
+2. **Reconnect Rojo** after pulling — you should see `ReplicatedStorage.PlaceConfig` in Explorer.
+3. **Press Play** and open **Output**. You want:
+   - `[Bootstrap] StardewRB server started as Farm`
+   - `Project=Farm` in the debug line
+4. **Verify place IDs** — in the farm place Command Bar run `print(game.PlaceId)` and paste that exact number into `GameConfig.Places.Farm.PlaceId`. Use **place** IDs, not universe IDs.
+5. **Do not put the farm place id in the Hub slot** — that makes the farm resolve as Hub and skips farm world generation.
+6. After Studio shows the green platform + grid + HUD, **publish** the farm place again.
 
 ## Git workflow
 

@@ -1,55 +1,71 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local PlaceType = require(ReplicatedStorage.Shared.PlaceType)
-local DataService = require(script.Parent.Data.DataService)
-local TimeService = require(script.Parent.Time.TimeService)
-local FarmTeleportService = require(script.Parent.Teleport.FarmTeleportService)
-local FarmGridService = require(script.Parent.Farm.FarmGridService)
-local PortalService = require(script.Parent.Hub.PortalService)
-local ReturnPortalService = require(script.Parent.Farm.ReturnPortalService)
-local FarmWorldService = require(script.Parent.Farm.FarmWorldService)
-local StudioSetup = require(script.Parent.Studio.StudioSetup)
-local PlayerStateService = require(script.Parent.Data.PlayerStateService)
-local SellService = require(script.Parent.Economy.SellService)
+local function start()
+	local PlaceType = require(ReplicatedStorage.Shared.PlaceType)
+	local DataService = require(script.Parent.Data.DataService)
+	local TimeService = require(script.Parent.Time.TimeService)
+	local FarmTeleportService = require(script.Parent.Teleport.FarmTeleportService)
+	local FarmGridService = require(script.Parent.Farm.FarmGridService)
+	local PortalService = require(script.Parent.Hub.PortalService)
+	local ReturnPortalService = require(script.Parent.Farm.ReturnPortalService)
+	local FarmWorldService = require(script.Parent.Farm.FarmWorldService)
+	local StudioSetup = require(script.Parent.Studio.StudioSetup)
+	local PlayerStateService = require(script.Parent.Data.PlayerStateService)
+	local SellService = require(script.Parent.Economy.SellService)
 
-local DataServiceModule = DataService
-local TimeServiceModule = TimeService
-local FarmTeleportServiceModule = FarmTeleportService
-local FarmGridServiceModule = FarmGridService
-local PortalServiceModule = PortalService
+	DataService.init()
+	TimeService.init()
+	FarmTeleportService.init()
+	FarmGridService.init()
+	SellService.init()
+	FarmWorldService.init()
+	PortalService.init()
+	ReturnPortalService.init()
+	StudioSetup.init()
 
-DataServiceModule.init()
-TimeServiceModule.init()
-FarmTeleportServiceModule.init()
-FarmGridServiceModule.init()
-SellService.init()
-FarmWorldService.init()
-PortalServiceModule.init()
-ReturnPortalService.init()
-StudioSetup.init()
-
-Players.PlayerAdded:Connect(function(player)
-	DataServiceModule.waitForProfile(player)
-	PlayerStateService.replicate(player)
-
-	if PlaceType.isFarm() then
-		local payload = FarmTeleportServiceModule.getTeleportPayload(player)
-		if payload then
-			print(`[Bootstrap] {player.Name} joined farm server {payload.accessCode}`)
-		end
-		FarmGridServiceModule.sendInitialGrid(player)
-	end
-end)
-
-for _, player in Players:GetPlayers() do
-	task.spawn(function()
-		DataServiceModule.waitForProfile(player)
+	Players.PlayerAdded:Connect(function(player)
+		DataService.waitForProfile(player)
 		PlayerStateService.replicate(player)
+
 		if PlaceType.isFarm() then
-			FarmGridServiceModule.sendInitialGrid(player)
+			local payload = FarmTeleportService.getTeleportPayload(player)
+			if payload then
+				print(`[Bootstrap] {player.Name} joined farm server {payload.accessCode}`)
+			end
+			FarmGridService.sendInitialGrid(player)
 		end
 	end)
+
+	for _, player in Players:GetPlayers() do
+		task.spawn(function()
+			DataService.waitForProfile(player)
+			PlayerStateService.replicate(player)
+			if PlaceType.isFarm() then
+				FarmGridService.sendInitialGrid(player)
+			end
+		end)
+	end
+
+	local resolvedPlaceType = PlaceType.getCurrent()
+	print(`[Bootstrap] StardewRB server started as {resolvedPlaceType}`)
+
+	local debugInfo = PlaceType.getDebugInfo()
+	print(
+		`[Bootstrap] PlaceId={debugInfo.gamePlaceId} HubId={debugInfo.hubPlaceId} FarmId={debugInfo.farmPlaceId} GameAttr={debugInfo.gameAttribute} RsAttr={debugInfo.replicatedStorageAttribute} Project={debugInfo.projectPlaceType}`
+	)
+
+	if resolvedPlaceType == "Unknown" then
+		warn("[Bootstrap] Place type is Unknown — set PlaceIds in GameConfig or use rojo serve farm.project.json")
+	elseif resolvedPlaceType == "Hub" and debugInfo.projectPlaceType == "Farm" then
+		warn("[Bootstrap] Farm project is synced but server resolved as Hub — check GameConfig place ids")
+	elseif PlaceType.isFarm() and not workspace:FindFirstChild("FarmWorld") then
+		warn("[Bootstrap] Farm place detected but FarmWorld was not created — check server output for errors")
+	end
 end
 
-print(`[Bootstrap] StardewRB server started as {PlaceType.getCurrent()}`)
+local ok, err = xpcall(start, debug.traceback)
+if not ok then
+	warn("[Bootstrap] StardewRB failed to start:", err)
+	error(err)
+end
