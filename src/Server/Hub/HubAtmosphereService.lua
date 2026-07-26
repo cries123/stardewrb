@@ -25,7 +25,10 @@ function HubAtmosphereService.init()
 end
 
 function HubAtmosphereService._applyLightingPreset()
-	Lighting.Technology = Enum.Technology.Future
+	-- Technology is place-level only; scripts lack RobloxScript capability in Studio.
+	pcall(function()
+		Lighting.Technology = Enum.Technology.Future
+	end)
 	Lighting.GlobalShadows = true
 	Lighting.EnvironmentDiffuseScale = 0.4
 	Lighting.EnvironmentSpecularScale = 0.6
