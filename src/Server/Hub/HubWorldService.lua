@@ -7,23 +7,13 @@ local PlaceType = require(ReplicatedStorage.Shared.PlaceType)
 local HubTerrainBuilder = require(script.Parent.HubTerrainBuilder)
 local HubBuildingKit = require(script.Parent.HubBuildingKit)
 local HubNatureKit = require(script.Parent.HubNatureKit)
-local HubInteractionService = require(script.Parent.HubInteractionService)
 
 local HubWorldService = {}
 
 local WORLD_FOLDER_NAME = "HubWorld"
 local FARM_PORTAL_TAG = "FarmPortal"
 local SEASON_ATTR = "HubSeasonPart"
-local BUILD_VERSION = 5
-
-local function runStep(label: string, callback): boolean
-	local ok, err = pcall(callback)
-	if not ok then
-		warn(`[HubWorldService] Step failed ({label}):`, err)
-		return false
-	end
-	return true
-end
+local BUILD_VERSION = 2
 
 function HubWorldService.init()
 	if not PlaceType.isHub() then
@@ -31,7 +21,7 @@ function HubWorldService.init()
 		return
 	end
 
-	print("[HubWorldService] Building Pelican Town (visual pass v5 + gameplay)...")
+	print("[HubWorldService] Building Pelican Town (visual pass)...")
 
 	local ok, err = pcall(function()
 		HubWorldService._clearDefaultSpawns()
@@ -43,20 +33,7 @@ function HubWorldService.init()
 		return
 	end
 
-	local folder = workspace:FindFirstChild(WORLD_FOLDER_NAME)
-	local buildingCount = 0
-	if folder then
-		local buildings = folder:FindFirstChild("Buildings")
-		if buildings then
-			buildingCount = #buildings:GetChildren()
-		end
-	end
-
-	if buildingCount == 0 then
-		warn("[HubWorldService] Town built but no buildings — check Output for step errors above")
-	else
-		print(`[HubWorldService] Pelican Town ready — {buildingCount} buildings placed`)
-	end
+	print("[HubWorldService] Pelican Town ready — terrain, paths, and cozy buildings placed")
 end
 
 function HubWorldService._clearDefaultSpawns()
@@ -82,53 +59,14 @@ function HubWorldService._getOrCreateFolder(): Folder
 	return folder
 end
 
-function HubWorldService._shouldSkipBuild(folder: Folder): boolean
-	if folder:GetAttribute("BuildVersion") ~= BUILD_VERSION then
-		return false
-	end
-
-	local buildings = folder:FindFirstChild("Buildings")
-	return buildings ~= nil and #buildings:GetChildren() > 0
-end
-
-function HubWorldService._createTownPlatform(parent: Folder, platformSize: number)
-	local platform = Instance.new("Part")
-	platform.Name = "TownPlatform"
-	platform.Anchored = true
-	platform.Size = Vector3.new(platformSize - 40, 1, platformSize - 40)
-	platform.Position = Vector3.new(0, HubLayout.GROUND_Y - 0.5, 0)
-	platform.Color = Color3.fromRGB(148, 132, 108)
-	platform.Material = Enum.Material.Cobblestone
-	platform.Parent = parent
-end
-
-function HubWorldService._buildBuilding(buildingsFolder: Folder, buildingDef)
-	local ok, err = pcall(function()
-		HubBuildingKit.build(buildingsFolder, buildingDef)
-	end)
-	if ok then
-		return true
-	end
-
-	warn(`[HubWorldService] Building failed ({buildingDef.id}), using fallback:`, err)
-	local fallbackOk, fallbackErr = pcall(function()
-		HubBuildingKit.buildFallback(buildingsFolder, buildingDef)
-	end)
-	if not fallbackOk then
-		warn(`[HubWorldService] Fallback building failed ({buildingDef.id}):`, fallbackErr)
-	end
-	return fallbackOk
-end
-
 function HubWorldService._buildWorld()
 	local folder = HubWorldService._getOrCreateFolder()
-	if HubWorldService._shouldSkipBuild(folder) then
-		print(`[HubWorldService] Town already built (v{BUILD_VERSION})`)
+	if folder:GetAttribute("BuildVersion") == BUILD_VERSION then
 		return
 	end
 
+	-- Rebuild from scratch when upgrading town visuals
 	folder:ClearAllChildren()
-	HubTerrainBuilder.reset(folder)
 
 	local hubConfig = GameConfig.Hub
 	local platformSize = hubConfig.PlatformSize
@@ -149,79 +87,32 @@ function HubWorldService._buildWorld()
 	propsFolder.Name = "Props"
 	propsFolder.Parent = folder
 
-	runStep("spawn and portal", function()
-		HubWorldService._createSpawn(folder, HubLayout.HUB_SPAWN.position)
-		HubWorldService._createFarmPortal(folder, HubLayout.FARM_PORTAL.position)
-	end)
+	HubTerrainBuilder.build(folder, platformSize)
 
-	runStep("town platform", function()
-		HubWorldService._createTownPlatform(folder, platformSize)
-	end)
-
-	runStep("walkways", function()
-		for index, segment in HubLayout.WALKWAYS do
-			local position, size = segment[1], segment[2]
-			HubNatureKit.createPathSegment(pathsFolder, index, position, Vector3.new(size.X, 0.12, size.Z))
-		end
-	end)
-
-	local builtCount = 0
-	runStep("buildings", function()
-		for _, building in HubLayout.BUILDINGS do
-			if HubWorldService._buildBuilding(buildingsFolder, building) then
-				builtCount += 1
-			end
-		end
-	end)
-
-	runStep("props", function()
-		for index, lampPosition in HubLayout.LAMP_POSTS do
-			HubNatureKit.createLampPost(propsFolder, lampPosition, index)
-		end
-
-		for index, line in HubLayout.FENCE_LINES do
-			HubNatureKit.createFenceLine(propsFolder, line[1], line[2], index)
-		end
-
-		HubWorldService._createRiverSign(propsFolder, HubLayout.RIVER_SIGN)
-		HubWorldService._createPlayground(propsFolder, HubLayout.PLAYGROUND)
-		HubWorldService._createShippingBin(propsFolder, HubLayout.SHIPPING_BIN)
-	end)
-
-	runStep("nature", function()
-		HubWorldService._createNature(natureFolder, HubLayout.NATURE_CLUSTERS, HubLayout.FLOWER_PATCHES)
-	end)
-
-	runStep("terrain", function()
-		HubTerrainBuilder.build(folder, platformSize)
-	end)
-
-	if builtCount > 0 then
-		folder:SetAttribute("BuildVersion", BUILD_VERSION)
+	for index, segment in HubLayout.WALKWAYS do
+		local position, size = segment[1], segment[2]
+		HubNatureKit.createPathSegment(pathsFolder, index, position, Vector3.new(size.X, 0.12, size.Z))
 	end
-end
 
-function HubWorldService._createShippingBin(parent: Folder, binDef)
-	local bin = Instance.new("Part")
-	bin.Name = "ShippingBin"
-	bin.Anchored = true
-	bin.Size = Vector3.new(8, 6, 6)
-	bin.Position = binDef.position
-	bin.Color = Color3.fromRGB(102, 72, 44)
-	bin.Material = Enum.Material.WoodPlanks
-	bin.Parent = parent
+	for index, building in HubLayout.BUILDINGS do
+		HubBuildingKit.build(buildingsFolder, building)
+	end
 
-	local sign = Instance.new("Part")
-	sign.Name = "ShippingBinSign"
-	sign.Anchored = true
-	sign.CanCollide = false
-	sign.Size = Vector3.new(8, 2, 0.4)
-	sign.Position = binDef.position + Vector3.new(0, 4, 0)
-	sign.Color = Color3.fromRGB(55, 42, 32)
-	sign.Parent = parent
-	HubWorldService._createBillboard(sign, "Shipping Bin", "Ship crops — gold arrives tomorrow")
+	for index, lampPosition in HubLayout.LAMP_POSTS do
+		HubNatureKit.createLampPost(propsFolder, lampPosition, index)
+	end
 
-	HubInteractionService.attachPrompt(bin, "ShippingBin")
+	for index, line in HubLayout.FENCE_LINES do
+		HubNatureKit.createFenceLine(propsFolder, line[1], line[2], index)
+	end
+
+	HubWorldService._createRiverSign(propsFolder, HubLayout.RIVER_SIGN)
+	HubWorldService._createPlayground(propsFolder, HubLayout.PLAYGROUND)
+	HubWorldService._createNature(natureFolder, HubLayout.NATURE_CLUSTERS, HubLayout.FLOWER_PATCHES)
+	HubWorldService._createSpawn(folder, HubLayout.HUB_SPAWN.position)
+	HubWorldService._createFarmPortal(folder, HubLayout.FARM_PORTAL.position)
+
+	folder:SetAttribute("BuildVersion", BUILD_VERSION)
 end
 
 function HubWorldService._createRiverSign(parent: Folder, riverSignDef)
@@ -333,10 +224,8 @@ function HubWorldService._createSpawn(parent: Folder, position: Vector3)
 end
 
 function HubWorldService._createFarmPortal(parent: Folder, position: Vector3)
-	for _, tagged in CollectionService:GetTagged(FARM_PORTAL_TAG) do
-		if tagged:IsA("BasePart") then
-			tagged:Destroy()
-		end
+	if CollectionService:GetTagged(FARM_PORTAL_TAG)[1] then
+		return
 	end
 
 	local arch = Instance.new("Part")
