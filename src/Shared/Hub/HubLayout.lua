@@ -7,18 +7,38 @@ local HubLayout = {}
 
 HubLayout.TOWN_CENTER = Vector3.new(0, 0, 0)
 
--- Stone walkway segments: { position, size }
+-- Thin walkway segments: { position (y ignored), size (X, _, Z) }
 HubLayout.WALKWAYS = {
-	{ Vector3.new(0, 0.06, 0), Vector3.new(12, 0.15, 280) },
-	{ Vector3.new(0, 0.06, 0), Vector3.new(260, 0.15, 12) },
-	{ Vector3.new(0, 0.06, 55), Vector3.new(80, 0.15, 10) },
-	{ Vector3.new(0, 0.06, -55), Vector3.new(80, 0.15, 10) },
-	{ Vector3.new(55, 0.06, 0), Vector3.new(10, 0.15, 70) },
-	{ Vector3.new(-55, 0.06, 0), Vector3.new(10, 0.15, 90) },
-	{ Vector3.new(0, 0.06, 105), Vector3.new(10, 0.15, 50) },
-	{ Vector3.new(0, 0.06, -105), Vector3.new(10, 0.15, 40) },
-	{ Vector3.new(-95, 0.06, 0), Vector3.new(10, 0.15, 120) },
-	{ Vector3.new(95, 0.06, 0), Vector3.new(10, 0.15, 90) },
+	{ Vector3.new(0, 0, 0), Vector3.new(10, 0, 280) },
+	{ Vector3.new(0, 0, 0), Vector3.new(260, 0, 10) },
+	{ Vector3.new(0, 0, 55), Vector3.new(80, 0, 8) },
+	{ Vector3.new(0, 0, -55), Vector3.new(80, 0, 8) },
+	{ Vector3.new(55, 0, 0), Vector3.new(8, 0, 70) },
+	{ Vector3.new(-55, 0, 0), Vector3.new(8, 0, 90) },
+	{ Vector3.new(0, 0, 105), Vector3.new(8, 0, 50) },
+	{ Vector3.new(0, 0, -105), Vector3.new(8, 0, 40) },
+	{ Vector3.new(-95, 0, 0), Vector3.new(8, 0, 120) },
+	{ Vector3.new(95, 0, 0), Vector3.new(8, 0, 90) },
+}
+
+HubLayout.LAMP_POSTS = {
+	Vector3.new(8, 0, -40),
+	Vector3.new(-8, 0, -40),
+	Vector3.new(8, 0, 40),
+	Vector3.new(-8, 0, 40),
+	Vector3.new(40, 0, 8),
+	Vector3.new(-40, 0, 8),
+	Vector3.new(40, 0, -8),
+	Vector3.new(-40, 0, -8),
+	Vector3.new(0, 0, -70),
+	Vector3.new(0, 0, 70),
+	Vector3.new(70, 0, -30),
+	Vector3.new(-70, 0, 30),
+}
+
+HubLayout.FENCE_LINES = {
+	{ Vector3.new(-22, 0, 22), Vector3.new(22, 0, 22) },
+	{ Vector3.new(-22, 0, -22), Vector3.new(22, 0, -22) },
 }
 
 -- { id, name, subtitle, position, size, wallColor, roofColor, tag? }
@@ -31,7 +51,7 @@ HubLayout.BUILDINGS = {
 		size = Vector3.new(44, 1, 44),
 		wallColor = Color3.fromRGB(160, 145, 120),
 		roofColor = Color3.fromRGB(160, 145, 120),
-		isPlaza = true,
+		style = "plaza",
 	},
 	{
 		id = "Pierres",
@@ -41,6 +61,7 @@ HubLayout.BUILDINGS = {
 		size = Vector3.new(26, 14, 20),
 		wallColor = Color3.fromRGB(186, 128, 78),
 		roofColor = Color3.fromRGB(118, 62, 42),
+		style = "pierre",
 	},
 	{
 		id = "Saloon",
@@ -50,6 +71,7 @@ HubLayout.BUILDINGS = {
 		size = Vector3.new(28, 14, 22),
 		wallColor = Color3.fromRGB(140, 88, 62),
 		roofColor = Color3.fromRGB(88, 48, 36),
+		style = "saloon",
 	},
 	{
 		id = "Blacksmith",
@@ -95,6 +117,7 @@ HubLayout.BUILDINGS = {
 		size = Vector3.new(24, 14, 20),
 		wallColor = Color3.fromRGB(220, 220, 228),
 		roofColor = Color3.fromRGB(148, 72, 72),
+		style = "clinic",
 	},
 	{
 		id = "MayorManor",
@@ -143,9 +166,16 @@ HubLayout.BUILDINGS = {
 	},
 }
 
-HubLayout.RIVER = {
-	position = Vector3.new(-138, -0.8, 0),
-	size = Vector3.new(22, 2, 300),
+HubLayout.RIVER_SIGN = {
+	position = Vector3.new(-118, 6, 0),
+}
+
+HubLayout.HUB_SPAWN = {
+	position = Vector3.new(0, 4, -95),
+}
+
+HubLayout.FARM_PORTAL = {
+	position = Vector3.new(0, 8, -118),
 }
 
 HubLayout.NATURE_CLUSTERS = {
@@ -171,15 +201,7 @@ HubLayout.FLOWER_PATCHES = {
 }
 
 HubLayout.PLAYGROUND = {
-	center = Vector3.new(0, 0, 128),
-}
-
-HubLayout.FARM_PORTAL = {
-	position = Vector3.new(0, 5, -118),
-}
-
-HubLayout.HUB_SPAWN = {
-	position = Vector3.new(0, 1, -95),
+	center = Vector3.new(0, 3, 128),
 }
 
 return HubLayout

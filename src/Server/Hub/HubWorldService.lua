@@ -4,12 +4,16 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameConfig = require(ReplicatedStorage.Shared.GameConfig)
 local HubLayout = require(ReplicatedStorage.Shared.Hub.HubLayout)
 local PlaceType = require(ReplicatedStorage.Shared.PlaceType)
+local HubTerrainBuilder = require(script.Parent.HubTerrainBuilder)
+local HubBuildingKit = require(script.Parent.HubBuildingKit)
+local HubNatureKit = require(script.Parent.HubNatureKit)
 
 local HubWorldService = {}
 
 local WORLD_FOLDER_NAME = "HubWorld"
 local FARM_PORTAL_TAG = "FarmPortal"
 local SEASON_ATTR = "HubSeasonPart"
+local BUILD_VERSION = 2
 
 function HubWorldService.init()
 	if not PlaceType.isHub() then
@@ -17,7 +21,7 @@ function HubWorldService.init()
 		return
 	end
 
-	print("[HubWorldService] Building Pelican Town...")
+	print("[HubWorldService] Building Pelican Town (visual pass)...")
 
 	local ok, err = pcall(function()
 		HubWorldService._clearDefaultSpawns()
@@ -29,7 +33,7 @@ function HubWorldService.init()
 		return
 	end
 
-	print("[HubWorldService] Pelican Town ready — look for workspace.HubWorld")
+	print("[HubWorldService] Pelican Town ready — terrain, paths, and cozy buildings placed")
 end
 
 function HubWorldService._clearDefaultSpawns()
@@ -57,21 +61,15 @@ end
 
 function HubWorldService._buildWorld()
 	local folder = HubWorldService._getOrCreateFolder()
-	if folder:FindFirstChild("Ground") then
+	if folder:GetAttribute("BuildVersion") == BUILD_VERSION then
 		return
 	end
 
+	-- Rebuild from scratch when upgrading town visuals
+	folder:ClearAllChildren()
+
 	local hubConfig = GameConfig.Hub
-	local center = hubConfig.Origin
 	local platformSize = hubConfig.PlatformSize
-
-	local groundFolder = Instance.new("Folder")
-	groundFolder.Name = "Ground"
-	groundFolder.Parent = folder
-
-	local natureFolder = Instance.new("Folder")
-	natureFolder.Name = "Nature"
-	natureFolder.Parent = folder
 
 	local pathsFolder = Instance.new("Folder")
 	pathsFolder.Name = "Walkways"
@@ -81,162 +79,53 @@ function HubWorldService._buildWorld()
 	buildingsFolder.Name = "Buildings"
 	buildingsFolder.Parent = folder
 
+	local natureFolder = Instance.new("Folder")
+	natureFolder.Name = "Nature"
+	natureFolder.Parent = folder
+
 	local propsFolder = Instance.new("Folder")
 	propsFolder.Name = "Props"
 	propsFolder.Parent = folder
 
-	HubWorldService._createGround(groundFolder, center, platformSize)
-	HubWorldService._createRiver(groundFolder, HubLayout.RIVER)
-	HubWorldService._createWalkways(pathsFolder, HubLayout.WALKWAYS)
-	HubWorldService._createBuildings(buildingsFolder, HubLayout.BUILDINGS)
-	HubWorldService._createTownSquareProps(propsFolder)
+	HubTerrainBuilder.build(folder, platformSize)
+
+	for index, segment in HubLayout.WALKWAYS do
+		local position, size = segment[1], segment[2]
+		HubNatureKit.createPathSegment(pathsFolder, index, position, Vector3.new(size.X, 0.12, size.Z))
+	end
+
+	for index, building in HubLayout.BUILDINGS do
+		HubBuildingKit.build(buildingsFolder, building)
+	end
+
+	for index, lampPosition in HubLayout.LAMP_POSTS do
+		HubNatureKit.createLampPost(propsFolder, lampPosition, index)
+	end
+
+	for index, line in HubLayout.FENCE_LINES do
+		HubNatureKit.createFenceLine(propsFolder, line[1], line[2], index)
+	end
+
+	HubWorldService._createRiverSign(propsFolder, HubLayout.RIVER_SIGN)
 	HubWorldService._createPlayground(propsFolder, HubLayout.PLAYGROUND)
 	HubWorldService._createNature(natureFolder, HubLayout.NATURE_CLUSTERS, HubLayout.FLOWER_PATCHES)
 	HubWorldService._createSpawn(folder, HubLayout.HUB_SPAWN.position)
 	HubWorldService._createFarmPortal(folder, HubLayout.FARM_PORTAL.position)
-	HubWorldService._createBoundaryWalls(folder, center, platformSize, hubConfig.WallHeight)
+
+	folder:SetAttribute("BuildVersion", BUILD_VERSION)
 end
 
-function HubWorldService._markSeasonPart(part: BasePart, partType: string)
-	part:SetAttribute(SEASON_ATTR, partType)
-end
-
-function HubWorldService._createGround(parent: Folder, center: Vector3, platformSize: number)
-	local ground = Instance.new("Part")
-	ground.Name = "Ground"
-	ground.Anchored = true
-	ground.Size = Vector3.new(platformSize, 1, platformSize)
-	ground.Position = center + Vector3.new(0, -0.5, 0)
-	ground.Material = Enum.Material.Grass
-	ground.Color = Color3.fromRGB(88, 140, 72)
-	ground.CanQuery = false
-	ground.Parent = parent
-	HubWorldService._markSeasonPart(ground, "Grass")
-end
-
-function HubWorldService._createRiver(parent: Folder, riverDef)
-	local river = Instance.new("Part")
-	river.Name = "River"
-	river.Anchored = true
-	river.Size = riverDef.size
-	river.Position = riverDef.position
-	river.Material = Enum.Material.Glass
-	river.Transparency = 0.35
-	river.Color = Color3.fromRGB(72, 130, 185)
-	river.CanCollide = false
-	river.Parent = parent
-	HubWorldService._markSeasonPart(river, "River")
-
+function HubWorldService._createRiverSign(parent: Folder, riverSignDef)
 	local sign = Instance.new("Part")
 	sign.Name = "RiverSign"
 	sign.Anchored = true
 	sign.CanCollide = false
 	sign.Size = Vector3.new(10, 2, 0.4)
-	sign.Position = riverDef.position + Vector3.new(14, 4, 0)
+	sign.Position = riverSignDef.position
 	sign.Color = Color3.fromRGB(55, 42, 32)
+	sign.Material = Enum.Material.Wood
 	sign.Parent = parent
 	HubWorldService._createBillboard(sign, "The River", "Fish for river catches")
-end
-
-function HubWorldService._createWalkways(parent: Folder, segments)
-	for index, segment in segments do
-		local position, size = segment[1], segment[2]
-		local path = Instance.new("Part")
-		path.Name = `Walkway_{index}`
-		path.Anchored = true
-		path.Size = size
-		path.Position = position
-		path.Material = Enum.Material.Cobblestone
-		path.Color = Color3.fromRGB(148, 132, 108)
-		path.CanCollide = true
-		path.Parent = parent
-		HubWorldService._markSeasonPart(path, "Path")
-	end
-end
-
-function HubWorldService._createBuildings(parent: Folder, buildings)
-	for _, building in buildings do
-		if building.isPlaza then
-			HubWorldService._createPlaza(parent, building)
-		else
-			HubWorldService._createBuilding(parent, building)
-		end
-	end
-end
-
-function HubWorldService._createPlaza(parent: Folder, def)
-	local plaza = Instance.new("Part")
-	plaza.Name = def.id
-	plaza.Anchored = true
-	plaza.Size = def.size
-	plaza.Position = def.position + Vector3.new(0, def.size.Y / 2, 0)
-	plaza.Material = Enum.Material.Slate
-	plaza.Color = def.wallColor
-	plaza.Parent = parent
-
-	local board = Instance.new("Part")
-	board.Name = "NoticeBoard"
-	board.Anchored = true
-	board.Size = Vector3.new(6, 5, 1)
-	board.Position = def.position + Vector3.new(0, 3.5, -8)
-	board.Color = Color3.fromRGB(92, 64, 40)
-	board.Parent = parent
-	HubWorldService._createBillboard(board, "Notice Board", "Seasonal festivals posted here")
-end
-
-function HubWorldService._createBuilding(parent: Folder, def)
-	local folder = Instance.new("Folder")
-	folder.Name = def.id
-	folder.Parent = parent
-
-	local width, height, depth = def.size.X, def.size.Y, def.size.Z
-	local baseY = def.position.Y + height / 2
-
-	local floor = Instance.new("Part")
-	floor.Name = "Floor"
-	floor.Anchored = true
-	floor.Size = Vector3.new(width, 1, depth)
-	floor.Position = Vector3.new(def.position.X, def.position.Y + 0.5, def.position.Z)
-	floor.Color = def.wallColor
-	floor.Material = Enum.Material.WoodPlanks
-	floor.Parent = folder
-
-	local walls = {
-		{ Vector3.new(width, height, 1), Vector3.new(0, 0, depth / 2) },
-		{ Vector3.new(width, height, 1), Vector3.new(0, 0, -depth / 2) },
-		{ Vector3.new(1, height, depth), Vector3.new(width / 2, 0, 0) },
-		{ Vector3.new(1, height, depth - 2), Vector3.new(-width / 2, 0, 0) },
-	}
-
-	for wallIndex, wallData in walls do
-		local wall = Instance.new("Part")
-		wall.Name = `Wall_{wallIndex}`
-		wall.Anchored = true
-		wall.Size = wallData[1]
-		wall.Position = Vector3.new(def.position.X, baseY, def.position.Z) + wallData[2]
-		wall.Color = def.wallColor
-		wall.Material = Enum.Material.Brick
-		wall.Parent = folder
-	end
-
-	local roof = Instance.new("Part")
-	roof.Name = "Roof"
-	roof.Anchored = true
-	roof.Size = Vector3.new(width + 2, 2, depth + 2)
-	roof.Position = Vector3.new(def.position.X, def.position.Y + height + 1, def.position.Z)
-	roof.Color = def.roofColor
-	roof.Material = Enum.Material.WoodShingles
-	roof.Parent = folder
-
-	local signPart = Instance.new("Part")
-	signPart.Name = "Sign"
-	signPart.Anchored = true
-	signPart.CanCollide = false
-	signPart.Size = Vector3.new(math.min(width, 12), 2, 0.4)
-	signPart.Position = Vector3.new(def.position.X, def.position.Y + height + 4, def.position.Z - depth / 2 - 1)
-	signPart.Color = Color3.fromRGB(55, 42, 32)
-	signPart.Parent = folder
-	HubWorldService._createBillboard(signPart, def.name, def.subtitle)
 end
 
 function HubWorldService._createBillboard(adornee: BasePart, title: string, subtitle: string)
@@ -266,33 +155,14 @@ function HubWorldService._createBillboard(adornee: BasePart, title: string, subt
 	subtitleLabel.Parent = billboard
 end
 
-function HubWorldService._createTownSquareProps(parent: Folder)
-	local benchPositions = {
-		Vector3.new(10, 0, 8),
-		Vector3.new(-10, 0, 8),
-		Vector3.new(8, 0, -10),
-	}
-
-	for index, offset in benchPositions do
-		local bench = Instance.new("Part")
-		bench.Name = `Bench_{index}`
-		bench.Anchored = true
-		bench.Size = Vector3.new(5, 1.5, 2)
-		bench.Position = offset + Vector3.new(0, 1, 0)
-		bench.Color = Color3.fromRGB(102, 72, 44)
-		bench.Material = Enum.Material.Wood
-		bench.Parent = parent
-	end
-end
-
 function HubWorldService._createPlayground(parent: Folder, playgroundDef)
 	local center = playgroundDef.center
 
 	local sand = Instance.new("Part")
 	sand.Name = "PlaygroundSand"
 	sand.Anchored = true
-	sand.Size = Vector3.new(36, 1, 30)
-	sand.Position = center + Vector3.new(0, 0.5, 0)
+	sand.Size = Vector3.new(36, 0.4, 30)
+	sand.Position = center + Vector3.new(0, 0.2, 0)
 	sand.Color = Color3.fromRGB(210, 185, 140)
 	sand.Material = Enum.Material.Sand
 	sand.Parent = parent
@@ -332,61 +202,13 @@ function HubWorldService._createNature(parent: Folder, clusters, flowerPatches)
 			local angle = (treeIndex / treeCount) * math.pi * 2
 			local radius = 6 + (treeIndex % 3) * 3
 			local offset = Vector3.new(math.cos(angle) * radius, 0, math.sin(angle) * radius)
-			HubWorldService._createTree(parent, `{clusterIndex}_{treeIndex}`, center + offset)
+			HubNatureKit.createTree(parent, `{clusterIndex}_{treeIndex}`, center + offset)
 		end
 	end
 
 	for flowerIndex, position in flowerPatches do
-		for patch = 1, 4 do
-			local flower = Instance.new("Part")
-			flower.Name = `Flower_{flowerIndex}_{patch}`
-			flower.Anchored = true
-			flower.Shape = Enum.PartType.Ball
-			flower.Size = Vector3.new(1.2, 1.2, 1.2)
-			flower.Position = position + Vector3.new((patch - 2) * 1.5, 0.8, (patch % 2) * 1.2)
-			flower.Material = Enum.Material.Grass
-			flower.Color = Color3.fromRGB(240, 140, 180)
-			flower.CanCollide = false
-			flower.Parent = parent
-			HubWorldService._markSeasonPart(flower, "Flower")
-		end
+		HubNatureKit.createFlowerPatch(parent, position, flowerIndex)
 	end
-end
-
-function HubWorldService._createTree(parent: Folder, name: string, position: Vector3)
-	local trunk = Instance.new("Part")
-	trunk.Name = `{name}_Trunk`
-	trunk.Anchored = true
-	trunk.Size = Vector3.new(1.6, 6, 1.6)
-	trunk.Position = position + Vector3.new(0, 3, 0)
-	trunk.Color = Color3.fromRGB(102, 72, 44)
-	trunk.Material = Enum.Material.Wood
-	trunk.Parent = parent
-	HubWorldService._markSeasonPart(trunk, "TreeTrunk")
-
-	local foliage = Instance.new("Part")
-	foliage.Name = `{name}_Foliage`
-	foliage.Anchored = true
-	foliage.Shape = Enum.PartType.Ball
-	foliage.Size = Vector3.new(7, 7, 7)
-	foliage.Position = position + Vector3.new(0, 8, 0)
-	foliage.Color = Color3.fromRGB(72, 150, 68)
-	foliage.Material = Enum.Material.Grass
-	foliage.CanCollide = false
-	foliage.Parent = parent
-	HubWorldService._markSeasonPart(foliage, "TreeFoliage")
-
-	local bush = Instance.new("Part")
-	bush.Name = `{name}_Bush`
-	bush.Anchored = true
-	bush.Shape = Enum.PartType.Ball
-	bush.Size = Vector3.new(3.5, 2.5, 3.5)
-	bush.Position = position + Vector3.new(2, 1.2, 1)
-	bush.Color = Color3.fromRGB(64, 130, 58)
-	bush.Material = Enum.Material.Grass
-	bush.CanCollide = false
-	bush.Parent = parent
-	HubWorldService._markSeasonPart(bush, "Bush")
 end
 
 function HubWorldService._createSpawn(parent: Folder, position: Vector3)
@@ -406,13 +228,23 @@ function HubWorldService._createFarmPortal(parent: Folder, position: Vector3)
 		return
 	end
 
+	local arch = Instance.new("Part")
+	arch.Name = "FarmPortalArch"
+	arch.Anchored = true
+	arch.Size = Vector3.new(10, 12, 2)
+	arch.Position = position
+	arch.Color = Color3.fromRGB(92, 64, 40)
+	arch.Material = Enum.Material.Wood
+	arch.Parent = parent
+
 	local portal = Instance.new("Part")
 	portal.Name = "FarmPortal"
 	portal.Anchored = true
-	portal.Size = Vector3.new(8, 10, 2)
-	portal.Position = position
+	portal.Size = Vector3.new(6, 8, 1)
+	portal.Position = position + Vector3.new(0, -1, 0)
 	portal.Color = Color3.fromRGB(120, 90, 255)
 	portal.Material = Enum.Material.Neon
+	portal.Transparency = 0.15
 	portal.Parent = parent
 	CollectionService:AddTag(portal, FARM_PORTAL_TAG)
 
@@ -425,29 +257,6 @@ function HubWorldService._createFarmPortal(parent: Folder, position: Vector3)
 	sign.Color = Color3.fromRGB(55, 42, 32)
 	sign.Parent = parent
 	HubWorldService._createBillboard(sign, "Bus to Farm", "Touch portal or use Visit My Farm")
-end
-
-function HubWorldService._createBoundaryWalls(parent: Folder, center: Vector3, platformSize: number, wallHeight: number)
-	local half = platformSize / 2
-	local wallThickness = 2
-	local walls = {
-		{ Vector3.new(platformSize + wallThickness, wallHeight, wallThickness), Vector3.new(0, wallHeight / 2, half) },
-		{ Vector3.new(platformSize + wallThickness, wallHeight, wallThickness), Vector3.new(0, wallHeight / 2, -half) },
-		{ Vector3.new(wallThickness, wallHeight, platformSize + wallThickness), Vector3.new(half, wallHeight / 2, 0) },
-		{ Vector3.new(wallThickness, wallHeight, platformSize + wallThickness), Vector3.new(-half, wallHeight / 2, 0) },
-	}
-
-	for index, wallData in walls do
-		local wall = Instance.new("Part")
-		wall.Name = `BoundaryWall_{index}`
-		wall.Anchored = true
-		wall.Transparency = 0.5
-		wall.Size = wallData[1]
-		wall.Position = center + wallData[2]
-		wall.Color = Color3.fromRGB(92, 64, 38)
-		wall.Material = Enum.Material.Wood
-		wall.Parent = parent
-	end
 end
 
 function HubWorldService.getSeasonAttributeName(): string
