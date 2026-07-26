@@ -71,4 +71,13 @@ local GameConfig = {
 	},
 }
 
-return GameConfig
+	if not GameConfig.ActionEnergyCost then
+		GameConfig.ActionEnergyCost = {
+			Till = 2,
+			Water = 2,
+			Plant = 2,
+			Harvest = 1,
+		}
+	end
+
+	return GameConfig

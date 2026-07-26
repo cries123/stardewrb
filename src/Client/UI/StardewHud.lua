@@ -2,7 +2,6 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 
-local GameConfig = require(ReplicatedStorage.Shared.GameConfig)
 local PlaceType = require(ReplicatedStorage.Shared.PlaceType)
 local TimeMath = require(ReplicatedStorage.Shared.Time.TimeMath)
 local ToolbarLayout = require(ReplicatedStorage.Shared.Hud.ToolbarLayout)
