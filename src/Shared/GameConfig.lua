@@ -40,12 +40,19 @@ local GameConfig = {
 	},
 
 	Farm = {
-		GridWidth = 8,
-		GridHeight = 8,
-		CellSize = 4, -- studs per grid cell
+		GridWidth = 24,
+		GridHeight = 24,
+		CellSize = 4, -- studs per grid cell (24 * 4 = 96 stud farm)
 		Origin = Vector3.new(0, 0, 0), -- world-space origin of cell (1,1)
-		PlatformSize = 96, -- large safe ground so players do not fall off
+		PlatformSize = 96,
 		WallHeight = 16,
+		BuildVersion = 2,
+		Farmhouse = {
+			CellX = 9,
+			CellY = 19,
+			CellWidth = 6,
+			CellHeight = 5,
+		},
 	},
 
 	Hub = {

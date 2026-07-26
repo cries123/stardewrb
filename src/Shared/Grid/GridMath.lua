@@ -11,6 +11,34 @@ function GridMath.isInBounds(x: number, y: number): boolean
 		and y <= GameConfig.Farm.GridHeight
 end
 
+function GridMath.isBlockedCell(x: number, y: number): boolean
+	local house = GameConfig.Farm.Farmhouse
+	if not house then
+		return false
+	end
+
+	return x >= house.CellX
+		and x < house.CellX + house.CellWidth
+		and y >= house.CellY
+		and y < house.CellY + house.CellHeight
+end
+
+function GridMath.isFarmable(x: number, y: number): boolean
+	return GridMath.isInBounds(x, y) and not GridMath.isBlockedCell(x, y)
+end
+
+function GridMath.getCellRegionBounds(cellX: number, cellY: number, cellWidth: number, cellHeight: number)
+	local origin = GameConfig.Farm.Origin
+	local cellSize = GameConfig.Farm.CellSize
+
+	local minX = origin.X + (cellX - 1) * cellSize
+	local maxX = origin.X + (cellX - 1 + cellWidth) * cellSize
+	local minZ = origin.Z + (cellY - 1) * cellSize
+	local maxZ = origin.Z + (cellY - 1 + cellHeight) * cellSize
+
+	return minX, maxX, minZ, maxZ
+end
+
 function GridMath.getGridCenter(): Vector3
 	local widthStuds = GameConfig.Farm.GridWidth * GameConfig.Farm.CellSize
 	local heightStuds = GameConfig.Farm.GridHeight * GameConfig.Farm.CellSize
@@ -30,7 +58,7 @@ function GridMath.worldToCell(worldPosition: Vector3): (number?, number?)
 	local x = math.floor((worldPosition.X - origin.X) / cellSize) + 1
 	local y = math.floor((worldPosition.Z - origin.Z) / cellSize) + 1
 
-	if not GridMath.isInBounds(x, y) then
+	if not GridMath.isFarmable(x, y) then
 		return nil, nil
 	end
 
