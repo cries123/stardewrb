@@ -2,12 +2,12 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local PlaceType = require(ReplicatedStorage.Shared.PlaceType)
-local DataService = require(script.Data.DataService)
-local TimeService = require(script.Time.TimeService)
-local FarmTeleportService = require(script.Teleport.FarmTeleportService)
-local FarmGridService = require(script.Farm.FarmGridService)
-local PortalService = require(script.Hub.PortalService)
-local StudioSetup = require(script.Studio.StudioSetup)
+local DataService = require(script.Parent.Data.DataService)
+local TimeService = require(script.Parent.Time.TimeService)
+local FarmTeleportService = require(script.Parent.Teleport.FarmTeleportService)
+local FarmGridService = require(script.Parent.Farm.FarmGridService)
+local PortalService = require(script.Parent.Hub.PortalService)
+local StudioSetup = require(script.Parent.Studio.StudioSetup)
 
 local DataServiceModule = DataService
 local TimeServiceModule = TimeService
