@@ -1,8 +1,35 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local GameConfig = require(ReplicatedStorage.Shared.GameConfig)
 local ProfileTemplate = require(ReplicatedStorage.Shared.ProfileTemplate)
 
 local PlayerDataUtil = {}
+
+local function deepCopy(value)
+	if type(value) ~= "table" then
+		return value
+	end
+
+	local copy = {}
+	for key, child in value do
+		copy[key] = deepCopy(child)
+	end
+	return copy
+end
+
+function PlayerDataUtil.createEmptyGrid()
+	local grid = {}
+	for x = 1, GameConfig.Farm.GridWidth do
+		grid[x] = {}
+		for y = 1, GameConfig.Farm.GridHeight do
+			grid[x][y] = {
+				soil = "Empty",
+				crop = nil,
+			}
+		end
+	end
+	return grid
+end
 
 function PlayerDataUtil.ensureDefaults(data)
 	if data.Money == nil then
@@ -10,12 +37,7 @@ function PlayerDataUtil.ensureDefaults(data)
 	end
 
 	if data.Stats == nil then
-		data.Stats = {
-			Energy = ProfileTemplate.Stats.Energy,
-			MaxEnergy = ProfileTemplate.Stats.MaxEnergy,
-			Health = ProfileTemplate.Stats.Health,
-			MaxHealth = ProfileTemplate.Stats.MaxHealth,
-		}
+		data.Stats = deepCopy(ProfileTemplate.Stats)
 	else
 		if data.Stats.MaxEnergy == nil then
 			data.Stats.MaxEnergy = ProfileTemplate.Stats.MaxEnergy
@@ -29,6 +51,38 @@ function PlayerDataUtil.ensureDefaults(data)
 		if data.Stats.Health == nil then
 			data.Stats.Health = data.Stats.MaxHealth
 		end
+	end
+
+	if data.Inventory == nil then
+		data.Inventory = deepCopy(ProfileTemplate.Inventory)
+	else
+		if data.Inventory.Tools == nil then
+			data.Inventory.Tools = deepCopy(ProfileTemplate.Inventory.Tools)
+		else
+			if data.Inventory.Tools.Hoe == nil then
+				data.Inventory.Tools.Hoe = ProfileTemplate.Inventory.Tools.Hoe
+			end
+			if data.Inventory.Tools.WateringCan == nil then
+				data.Inventory.Tools.WateringCan = ProfileTemplate.Inventory.Tools.WateringCan
+			end
+		end
+
+		if data.Inventory.Seeds == nil then
+			data.Inventory.Seeds = deepCopy(ProfileTemplate.Inventory.Seeds)
+		end
+
+		if data.Inventory.Harvest == nil then
+			data.Inventory.Harvest = deepCopy(ProfileTemplate.Inventory.Harvest)
+		end
+	end
+
+	if data.FarmState == nil then
+		data.FarmState = {
+			PrivateServerCode = nil,
+			Grid = PlayerDataUtil.createEmptyGrid(),
+		}
+	elseif data.FarmState.Grid == nil then
+		data.FarmState.Grid = PlayerDataUtil.createEmptyGrid()
 	end
 end
 

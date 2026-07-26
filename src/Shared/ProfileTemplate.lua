@@ -1,4 +1,4 @@
-local GameConfig = require(script.Parent.Parent.GameConfig)
+local GameConfig = require(script.Parent.GameConfig)
 
 local function createEmptyGrid()
 	local grid = {}

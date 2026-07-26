@@ -2,7 +2,6 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 
-local GameConfig = require(ReplicatedStorage.Shared.GameConfig)
 local PlaceType = require(ReplicatedStorage.Shared.PlaceType)
 local TimeMath = require(ReplicatedStorage.Shared.Time.TimeMath)
 local ToolbarLayout = require(ReplicatedStorage.Shared.Hud.ToolbarLayout)
@@ -387,28 +386,25 @@ function StardewHud._formatClock(clockTime: number): string
 end
 
 function StardewHud._updateTime(snapshot)
-	if not snapshot then
+	if typeof(snapshot) ~= "table" or typeof(snapshot.gameDay) ~= "number" then
 		return
 	end
 
-	local dayNumber = snapshot.gameDay + 1
-	local weekday = GameConfig.Weekdays[(dayNumber % #GameConfig.Weekdays) + 1]
-	local seasonIndex = math.floor(snapshot.gameDay / GameConfig.DaysPerSeason) % #GameConfig.Seasons + 1
-	local season = GameConfig.Seasons[seasonIndex]
+	local calendar = TimeMath.getCalendarLabels(snapshot.gameDay)
 
 	if dateLabel then
-		dateLabel.Text = `{weekday}. {dayNumber}`
+		dateLabel.Text = `{calendar.weekday}. {calendar.dayNumber}`
 	end
 
 	if seasonLabel then
-		seasonLabel.Text = season
+		seasonLabel.Text = calendar.season
 	end
 
-	if dialIcon then
+	if dialIcon and typeof(snapshot.clockTime) == "number" then
 		dialIcon.Text = if snapshot.clockTime >= 18 or snapshot.clockTime < 6 then "🌙" else "☀"
 	end
 
-	if timeLabel then
+	if timeLabel and typeof(snapshot.clockTime) == "number" then
 		timeLabel.Text = StardewHud._formatClock(snapshot.clockTime)
 	end
 end
@@ -456,6 +452,15 @@ function StardewHud._bindRemotes()
 
 	local playerState = Remotes.waitForEvent("PlayerStateUpdate")
 	playerState.OnClientEvent:Connect(StardewHud._updatePlayerState)
+
+	if PlaceType.isFarm() then
+		local teleportResult = Remotes.waitForEvent("TeleportResult")
+		teleportResult.OnClientEvent:Connect(function(success, message)
+			if not success then
+				warn(`[Farm] {message}`)
+			end
+		end)
+	end
 end
 
 function StardewHud._bindInput()

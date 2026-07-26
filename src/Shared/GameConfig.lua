@@ -48,6 +48,12 @@ local GameConfig = {
 		WallHeight = 16,
 	},
 
+	Hub = {
+		Origin = Vector3.new(0, 0, 0),
+		PlatformSize = 320,
+		WallHeight = 20,
+	},
+
 	Crops = {
 		Tomato = {
 			DisplayName = "Tomato",
@@ -70,5 +76,14 @@ local GameConfig = {
 		},
 	},
 }
+
+if not GameConfig.ActionEnergyCost then
+	GameConfig.ActionEnergyCost = {
+		Till = 2,
+		Water = 2,
+		Plant = 2,
+		Harvest = 1,
+	}
+end
 
 return GameConfig

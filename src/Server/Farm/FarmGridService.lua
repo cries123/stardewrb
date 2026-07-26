@@ -12,8 +12,20 @@ local PlayerDataUtil = require(ReplicatedStorage.Shared.Data.PlayerDataUtil)
 
 local FarmGridService = {}
 
+local DEFAULT_ACTION_ENERGY_COST = {
+	Till = 2,
+	Water = 2,
+	Plant = 2,
+	Harvest = 1,
+}
+
 local function getEnergyCost(action: string): number
-	return GameConfig.ActionEnergyCost[action] or 0
+	local costs = GameConfig.ActionEnergyCost
+	if typeof(costs) ~= "table" then
+		costs = DEFAULT_ACTION_ENERGY_COST
+	end
+
+	return costs[action] or 0
 end
 
 local function trySpendEnergy(data, action: string): boolean

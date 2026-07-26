@@ -135,4 +135,17 @@ function DataService.releaseForTeleport(player: Player): boolean
 	return true
 end
 
+function DataService.reloadProfile(player: Player)
+	if DataService.getProfile(player) then
+		return true
+	end
+
+	if not DataService._profileStore then
+		return false
+	end
+
+	DataService._loadProfile(player)
+	return DataService.getProfile(player) ~= nil
+end
+
 return DataService

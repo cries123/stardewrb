@@ -123,6 +123,26 @@ All placement logic runs on a **2D array matrix** — not physical hitboxes.
 
 Growth loop: **Plant → Water → (next in-game day) → Ready → Harvest**
 
+## Hub town (Pelican Town MVP)
+
+The hub is built procedurally by `HubWorldService` when you serve `default.project.json`.
+
+**Included POIs:**
+- Town Square with notice board
+- Pierre's General Store, Stardrop Saloon, Blacksmith
+- Museum & Library, Community Center, JojaMart
+- Harvey's Clinic, Mayor's Manor
+- 1 & 2 Willow Lane homes, River Road houses (Pam/Penny trailer, George & Evelyn)
+- The River (west side), Playground (north)
+- Cobblestone walkways connecting districts
+- Trees, bushes, and flower patches around town
+
+**Seasons:** `HubSeasonService` recolors grass, paths, trees, flowers, and the river when the in-game season changes (synced with `TimeMath` — Spring → Summer → Fall → Winter).
+
+**Farm travel:** purple bus portal at the south exit (touch) or **Visit My Farm** in the hub UI.
+
+Edit layout in `src/Shared/Hub/HubLayout.lua` and colors in `src/Shared/Hub/HubSeasonPalettes.lua`.
+
 ## Global time sync
 
 `TimeMath` derives the in-game clock from `os.time()` and a shared `TimeEpoch` in `GameConfig`. Every server computes identical `gameDay`, `dayProgress`, and `clockTime`, so Hub and Farm lighting stay aligned.

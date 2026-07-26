@@ -48,8 +48,16 @@ function TimeService.init()
 end
 
 function TimeService._onNewDay(gameDay: number)
-	local farmGridService = require(script.Parent.Parent.Farm.FarmGridService)
-	farmGridService.onNewGameDay(gameDay)
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local PlaceType = require(ReplicatedStorage.Shared.PlaceType)
+
+	if PlaceType.isFarm() then
+		local farmGridService = require(script.Parent.Parent.Farm.FarmGridService)
+		farmGridService.onNewGameDay(gameDay)
+	elseif PlaceType.isHub() then
+		local HubSeasonService = require(script.Parent.Parent.Hub.HubSeasonService)
+		HubSeasonService.onNewGameDay(gameDay)
+	end
 end
 
 function TimeService.getCurrentGameDay(): number

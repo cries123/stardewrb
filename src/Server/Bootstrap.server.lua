@@ -10,6 +10,11 @@ local function start()
 	local PortalService = require(script.Parent.Hub.PortalService)
 	local ReturnPortalService = require(script.Parent.Farm.ReturnPortalService)
 	local FarmWorldService = require(script.Parent.Farm.FarmWorldService)
+<<<<<<< HEAD
+	local HubWorldService = require(script.Parent.Hub.HubWorldService)
+	local HubSeasonService = require(script.Parent.Hub.HubSeasonService)
+=======
+>>>>>>> origin/main
 	local StudioSetup = require(script.Parent.Studio.StudioSetup)
 	local PlayerStateService = require(script.Parent.Data.PlayerStateService)
 	local SellService = require(script.Parent.Economy.SellService)
@@ -20,6 +25,11 @@ local function start()
 	FarmGridService.init()
 	SellService.init()
 	FarmWorldService.init()
+<<<<<<< HEAD
+	HubWorldService.init()
+	HubSeasonService.init()
+=======
+>>>>>>> origin/main
 	PortalService.init()
 	ReturnPortalService.init()
 	StudioSetup.init()
@@ -61,6 +71,11 @@ local function start()
 		warn("[Bootstrap] Farm project is synced but server resolved as Hub — check GameConfig place ids")
 	elseif PlaceType.isFarm() and not workspace:FindFirstChild("FarmWorld") then
 		warn("[Bootstrap] Farm place detected but FarmWorld was not created — check server output for errors")
+<<<<<<< HEAD
+	elseif PlaceType.isHub() and not workspace:FindFirstChild("HubWorld") then
+		warn("[Bootstrap] Hub place detected but HubWorld was not created — check server output for errors")
+=======
+>>>>>>> origin/main
 	end
 end
 

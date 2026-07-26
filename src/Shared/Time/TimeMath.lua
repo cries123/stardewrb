@@ -46,4 +46,34 @@ function TimeMath.getSnapshot(now: number?)
 	}
 end
 
+local DEFAULT_WEEKDAYS = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" }
+local DEFAULT_SEASONS = { "Spring", "Summer", "Fall", "Winter" }
+
+function TimeMath.getCalendarLabels(gameDay: number)
+	local weekdays = GameConfig.Weekdays
+	if typeof(weekdays) ~= "table" or #weekdays == 0 then
+		weekdays = DEFAULT_WEEKDAYS
+	end
+
+	local seasons = GameConfig.Seasons
+	if typeof(seasons) ~= "table" or #seasons == 0 then
+		seasons = DEFAULT_SEASONS
+	end
+
+	local daysPerSeason = GameConfig.DaysPerSeason
+	if typeof(daysPerSeason) ~= "number" or daysPerSeason <= 0 then
+		daysPerSeason = 28
+	end
+
+	local dayNumber = math.max(1, math.floor(gameDay) + 1)
+	local weekdayIndex = (dayNumber % #weekdays) + 1
+	local seasonIndex = (math.floor(gameDay / daysPerSeason) % #seasons) + 1
+
+	return {
+		dayNumber = dayNumber,
+		weekday = weekdays[weekdayIndex],
+		season = seasons[seasonIndex],
+	}
+end
+
 return TimeMath
