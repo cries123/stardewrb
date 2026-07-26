@@ -106,13 +106,7 @@ function HubNatureKit.createPathSegment(parent: Instance, index: number, positio
 	path.Parent = parent
 	HubNatureKit.markSeasonPart(path, "Path")
 
-	local decal = Instance.new("Texture")
-	decal.Face = Enum.NormalId.Top
-	decal.Transparency = 0.15
-	decal.StudsPerTileU = 4
-	decal.StudsPerTileV = 4
-	decal.Texture = "rbxasset://textures/terrain/rockyground.png"
-	decal.Parent = path
+	-- Cobblestone material is enough; skip texture decals (some Studio builds reject the asset id).
 end
 
 function HubNatureKit.createFenceLine(parent: Instance, startPos: Vector3, endPos: Vector3, index: number)
@@ -123,7 +117,7 @@ function HubNatureKit.createFenceLine(parent: Instance, startPos: Vector3, endPo
 
 	for i = 0, count do
 		local alpha = i / count
-		local pos = startPos:Lerp(endPos, alpha) + Vector3.new(0, 3, 0)
+		local pos = startPos:Lerp(endPos, alpha) + Vector3.new(0, GROUND_Y, 0)
 		local post = Instance.new("Part")
 		post.Name = `FencePost_{index}_{i}`
 		post.Anchored = true

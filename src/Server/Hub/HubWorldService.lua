@@ -13,14 +13,15 @@ local HubWorldService = {}
 local WORLD_FOLDER_NAME = "HubWorld"
 local FARM_PORTAL_TAG = "FarmPortal"
 local SEASON_ATTR = "HubSeasonPart"
-local BUILD_VERSION = 3
+local BUILD_VERSION = 4
 
-local function runStep(label: string, callback)
+local function runStep(label: string, callback): boolean
 	local ok, err = pcall(callback)
 	if not ok then
 		warn(`[HubWorldService] Step failed ({label}):`, err)
-		error(err)
+		return false
 	end
+	return true
 end
 
 function HubWorldService.init()
@@ -29,7 +30,7 @@ function HubWorldService.init()
 		return
 	end
 
-	print("[HubWorldService] Building Pelican Town (visual pass v3)...")
+	print("[HubWorldService] Building Pelican Town (visual pass v4)...")
 
 	local ok, err = pcall(function()
 		HubWorldService._clearDefaultSpawns()
@@ -41,7 +42,20 @@ function HubWorldService.init()
 		return
 	end
 
-	print("[HubWorldService] Pelican Town ready — terrain, paths, and cozy buildings placed")
+	local folder = workspace:FindFirstChild(WORLD_FOLDER_NAME)
+	local buildingCount = 0
+	if folder then
+		local buildings = folder:FindFirstChild("Buildings")
+		if buildings then
+			buildingCount = #buildings:GetChildren()
+		end
+	end
+
+	if buildingCount == 0 then
+		warn("[HubWorldService] Town built but no buildings — check Output for step errors above")
+	else
+		print(`[HubWorldService] Pelican Town ready — {buildingCount} buildings placed`)
+	end
 end
 
 function HubWorldService._clearDefaultSpawns()
@@ -76,10 +90,39 @@ function HubWorldService._shouldSkipBuild(folder: Folder): boolean
 	return buildings ~= nil and #buildings:GetChildren() > 0
 end
 
+function HubWorldService._createTownPlatform(parent: Folder, platformSize: number)
+	local platform = Instance.new("Part")
+	platform.Name = "TownPlatform"
+	platform.Anchored = true
+	platform.Size = Vector3.new(platformSize - 40, 1, platformSize - 40)
+	platform.Position = Vector3.new(0, HubLayout.GROUND_Y - 0.5, 0)
+	platform.Color = Color3.fromRGB(148, 132, 108)
+	platform.Material = Enum.Material.Cobblestone
+	platform.Parent = parent
+end
+
+function HubWorldService._buildBuilding(buildingsFolder: Folder, buildingDef)
+	local ok, err = pcall(function()
+		HubBuildingKit.build(buildingsFolder, buildingDef)
+	end)
+	if ok then
+		return true
+	end
+
+	warn(`[HubWorldService] Building failed ({buildingDef.id}), using fallback:`, err)
+	local fallbackOk, fallbackErr = pcall(function()
+		HubBuildingKit.buildFallback(buildingsFolder, buildingDef)
+	end)
+	if not fallbackOk then
+		warn(`[HubWorldService] Fallback building failed ({buildingDef.id}):`, fallbackErr)
+	end
+	return fallbackOk
+end
+
 function HubWorldService._buildWorld()
 	local folder = HubWorldService._getOrCreateFolder()
 	if HubWorldService._shouldSkipBuild(folder) then
-		print("[HubWorldService] Town already built (v3)")
+		print(`[HubWorldService] Town already built (v{BUILD_VERSION})`)
 		return
 	end
 
@@ -110,8 +153,8 @@ function HubWorldService._buildWorld()
 		HubWorldService._createFarmPortal(folder, HubLayout.FARM_PORTAL.position)
 	end)
 
-	runStep("terrain", function()
-		HubTerrainBuilder.build(folder, platformSize)
+	runStep("town platform", function()
+		HubWorldService._createTownPlatform(folder, platformSize)
 	end)
 
 	runStep("walkways", function()
@@ -121,9 +164,12 @@ function HubWorldService._buildWorld()
 		end
 	end)
 
+	local builtCount = 0
 	runStep("buildings", function()
 		for _, building in HubLayout.BUILDINGS do
-			HubBuildingKit.build(buildingsFolder, building)
+			if HubWorldService._buildBuilding(buildingsFolder, building) then
+				builtCount += 1
+			end
 		end
 	end)
 
@@ -144,7 +190,13 @@ function HubWorldService._buildWorld()
 		HubWorldService._createNature(natureFolder, HubLayout.NATURE_CLUSTERS, HubLayout.FLOWER_PATCHES)
 	end)
 
-	folder:SetAttribute("BuildVersion", BUILD_VERSION)
+	runStep("terrain", function()
+		HubTerrainBuilder.build(folder, platformSize)
+	end)
+
+	if builtCount > 0 then
+		folder:SetAttribute("BuildVersion", BUILD_VERSION)
+	end
 end
 
 function HubWorldService._createRiverSign(parent: Folder, riverSignDef)

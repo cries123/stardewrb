@@ -2,6 +2,7 @@ local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local PlaceType = require(ReplicatedStorage.Shared.PlaceType)
+local HubLayout = require(ReplicatedStorage.Shared.Hub.HubLayout)
 local FarmTeleportService = require(script.Parent.Parent.Teleport.FarmTeleportService)
 
 local PortalService = {}
@@ -34,7 +35,7 @@ function PortalService._ensureFallbackPortal()
 	portal.Name = "FarmPortal"
 	portal.Anchored = true
 	portal.Size = Vector3.new(8, 10, 2)
-	portal.Position = Vector3.new(0, HubLayout.GROUND_Y + 5, -62)
+	portal.Position = HubLayout.FARM_PORTAL.position
 	portal.Color = Color3.fromRGB(120, 90, 255)
 	portal.Material = Enum.Material.Neon
 	portal.Parent = workspace

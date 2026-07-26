@@ -1,5 +1,6 @@
 --[[
 	Cozy procedural buildings for key Pelican Town POIs.
+	Uses only basic Part shapes so Studio never chokes on exotic materials.
 ]]
 
 local HubBuildingKit = {}
@@ -26,15 +27,15 @@ local function createPart(props): Part
 	return part
 end
 
-local function createWedgeRoof(parent: Instance, center: Vector3, width: number, depth: number, height: number, color: Color3)
-	local roof = Instance.new("WedgePart")
-	roof.Name = "Roof"
-	roof.Anchored = true
-	roof.Size = Vector3.new(width + 2, height, depth + 2)
-	roof.CFrame = CFrame.new(center + Vector3.new(0, height / 2, 0)) * CFrame.Angles(0, 0, math.rad(180))
-	roof.Color = color
-	roof.Material = Enum.Material.WoodPlanks
-	roof.Parent = parent
+local function createBoxRoof(parent: Instance, center: Vector3, width: number, depth: number, height: number, color: Color3)
+	createPart({
+		Name = "Roof",
+		Parent = parent,
+		Size = Vector3.new(width + 2, height, depth + 2),
+		Position = center,
+		Color = color,
+		Material = Enum.Material.WoodPlanks,
+	})
 end
 
 local function createBillboard(adornee: BasePart, title: string, subtitle: string)
@@ -64,7 +65,7 @@ local function createBillboard(adornee: BasePart, title: string, subtitle: strin
 	subtitleLabel.Parent = billboard
 end
 
-local function addWindows(parent: Instance, origin: Vector3, width: number, height: number, depth: number, wallColor: Color3)
+local function addWindows(parent: Instance, origin: Vector3, width: number, height: number, depth: number)
 	local windowY = origin.Y + height * 0.55
 	for _, xOffset in { -width * 0.25, width * 0.25 } do
 		createPart({
@@ -79,7 +80,7 @@ local function addWindows(parent: Instance, origin: Vector3, width: number, heig
 	end
 end
 
-local function addDoor(parent: Instance, origin: Vector3, depth: number, height: number)
+local function addDoor(parent: Instance, origin: Vector3, depth: number)
 	createPart({
 		Name = "Door",
 		Parent = parent,
@@ -88,6 +89,38 @@ local function addDoor(parent: Instance, origin: Vector3, depth: number, height:
 		Color = DOOR_WOOD,
 		Material = Enum.Material.Wood,
 	})
+end
+
+function HubBuildingKit.buildFallback(parent: Folder, def)
+	local folder = Instance.new("Folder")
+	folder.Name = def.id
+	folder.Parent = parent
+
+	local origin = def.position + Vector3.new(0, GROUND_Y, 0)
+	local width = math.max(def.size.X, 12)
+	local height = math.max(def.size.Y, 10)
+	local depth = math.max(def.size.Z, 12)
+
+	createPart({
+		Name = "MainHall",
+		Parent = folder,
+		Size = Vector3.new(width, height, depth),
+		Position = origin + Vector3.new(0, height / 2, 0),
+		Color = def.wallColor or Color3.fromRGB(180, 160, 140),
+		Material = Enum.Material.Brick,
+	})
+
+	createBoxRoof(folder, origin + Vector3.new(0, height + 2, 0), width, depth, 3, def.roofColor or Color3.fromRGB(100, 70, 50))
+
+	local sign = createPart({
+		Name = "Sign",
+		Parent = folder,
+		Size = Vector3.new(math.min(width, 14), 2.5, 0.4),
+		Position = origin + Vector3.new(0, height + 5, -depth / 2 - 1),
+		Color = SIGN_WOOD,
+		CanCollide = false,
+	})
+	createBillboard(sign, def.name or def.id, def.subtitle or "")
 end
 
 function HubBuildingKit.build(parent: Folder, def)
@@ -122,8 +155,7 @@ function HubBuildingKit.buildTownSquare(parent: Folder, def)
 		Material = Enum.Material.Slate,
 	})
 
-	-- Fountain
-	local basin = createPart({
+	createPart({
 		Name = "FountainBasin",
 		Parent = folder,
 		Size = Vector3.new(10, 1.2, 10),
@@ -131,8 +163,6 @@ function HubBuildingKit.buildTownSquare(parent: Folder, def)
 		Color = Color3.fromRGB(140, 140, 150),
 		Material = Enum.Material.Marble,
 	})
-	basin.Shape = Enum.PartType.Cylinder
-	basin.Orientation = Vector3.new(0, 0, 90)
 
 	createPart({
 		Name = "FountainWater",
@@ -153,7 +183,6 @@ function HubBuildingKit.buildTownSquare(parent: Folder, def)
 		Material = Enum.Material.Metal,
 	})
 
-	-- Notice board
 	local board = createPart({
 		Name = "NoticeBoard",
 		Parent = folder,
@@ -164,7 +193,6 @@ function HubBuildingKit.buildTownSquare(parent: Folder, def)
 	})
 	createBillboard(board, def.name, def.subtitle)
 
-	-- Planters
 	for _, offset in { Vector3.new(14, 0, 10), Vector3.new(-14, 0, 10), Vector3.new(14, 0, -10), Vector3.new(-14, 0, -10) } do
 		HubBuildingKit._createPlanter(folder, origin + offset)
 	end
@@ -196,16 +224,15 @@ function HubBuildingKit.buildPierres(parent: Folder, def)
 		Material = Enum.Material.Brick,
 	})
 
-	createWedgeRoof(folder, origin + Vector3.new(0, height + 2, 0), width, depth, 5, def.roofColor)
+	createBoxRoof(folder, origin + Vector3.new(0, height + 2, 0), width, depth, 5, def.roofColor)
 
-	-- Green awning over porch
 	createPart({
 		Name = "Awning",
 		Parent = folder,
 		Size = Vector3.new(width + 2, 0.4, 5),
 		Position = origin + Vector3.new(0, 5, -depth / 2 - 2),
 		Color = Color3.fromRGB(52, 110, 58),
-		Material = Enum.Material.Fabric,
+		Material = Enum.Material.WoodPlanks,
 	})
 
 	createPart({
@@ -217,8 +244,8 @@ function HubBuildingKit.buildPierres(parent: Folder, def)
 		Material = Enum.Material.WoodPlanks,
 	})
 
-	addDoor(folder, origin, depth, height)
-	addWindows(folder, origin, width, height, depth, def.wallColor)
+	addDoor(folder, origin, depth)
+	addWindows(folder, origin, width, height, depth)
 
 	local sign = createPart({
 		Name = "Sign",
@@ -255,10 +282,9 @@ function HubBuildingKit.buildSaloon(parent: Folder, def)
 		Size = Vector3.new(width + 3, 2, depth + 3),
 		Position = origin + Vector3.new(0, height + 1, 0),
 		Color = def.roofColor,
-		Material = Enum.Material.WoodShingles,
+		Material = Enum.Material.WoodPlanks,
 	})
 
-	-- Saloon front windows (warm glow)
 	for _, xOffset in { -6, 0, 6 } do
 		local window = createPart({
 			Name = "SaloonWindow",
@@ -272,7 +298,7 @@ function HubBuildingKit.buildSaloon(parent: Folder, def)
 		window:SetAttribute("HubStreetLamp", true)
 	end
 
-	addDoor(folder, origin, depth, height)
+	addDoor(folder, origin, depth)
 
 	local sign = createPart({
 		Name = "NeonSign",
@@ -304,9 +330,8 @@ function HubBuildingKit.buildClinic(parent: Folder, def)
 		Material = Enum.Material.SmoothPlastic,
 	})
 
-	createWedgeRoof(folder, origin + Vector3.new(0, height + 2, 0), width, depth, 4, def.roofColor)
+	createBoxRoof(folder, origin + Vector3.new(0, height + 2, 0), width, depth, 4, def.roofColor)
 
-	-- Red cross
 	createPart({
 		Name = "CrossV",
 		Parent = folder,
@@ -326,8 +351,8 @@ function HubBuildingKit.buildClinic(parent: Folder, def)
 		CanCollide = false,
 	})
 
-	addDoor(folder, origin, depth, height)
-	addWindows(folder, origin, width, height, depth, def.wallColor)
+	addDoor(folder, origin, depth)
+	addWindows(folder, origin, width, height, depth)
 
 	local sign = createPart({
 		Name = "Sign",
@@ -357,8 +382,8 @@ function HubBuildingKit.buildGeneric(parent: Folder, def)
 		Material = Enum.Material.Brick,
 	})
 
-	createWedgeRoof(folder, origin + Vector3.new(0, height + 2, 0), width, depth, 4, def.roofColor)
-	addDoor(folder, origin, depth, height)
+	createBoxRoof(folder, origin + Vector3.new(0, height + 2, 0), width, depth, 4, def.roofColor)
+	addDoor(folder, origin, depth)
 
 	local sign = createPart({
 		Name = "Sign",
