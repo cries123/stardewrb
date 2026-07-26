@@ -2,10 +2,19 @@
   "name": "stardewrb-hub",
   "tree": {
     "$className": "DataModel",
+    "$attributes": {
+      "PlaceType": "Hub"
+    },
     "ReplicatedStorage": {
       "$className": "ReplicatedStorage",
+      "$attributes": {
+        "PlaceType": "Hub"
+      },
       "Shared": {
         "$path": "src/Shared"
+      },
+      "PlaceConfig": {
+        "$path": "src/PlaceConfig/HubPlace.lua"
       }
     },
     "ServerScriptService": {

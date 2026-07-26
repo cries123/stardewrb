@@ -2,10 +2,19 @@
   "name": "stardewrb-farm",
   "tree": {
     "$className": "DataModel",
+    "$attributes": {
+      "PlaceType": "Farm"
+    },
     "ReplicatedStorage": {
       "$className": "ReplicatedStorage",
+      "$attributes": {
+        "PlaceType": "Farm"
+      },
       "Shared": {
         "$path": "src/Shared"
+      },
+      "PlaceConfig": {
+        "$path": "src/PlaceConfig/FarmPlace.lua"
       }
     },
     "ServerScriptService": {
