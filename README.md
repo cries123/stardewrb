@@ -20,12 +20,35 @@ Universe
 ## Prerequisites
 
 - [Roblox Studio](https://create.roblox.com/)
-- [Aftman](https://github.com/LPGhatguy/aftman) (recommended) or manual install of Rojo 7.x
-- [Rojo](https://rojo.space/) 7.x
+- [Aftman](https://github.com/LPGhatguy/aftman) (recommended) or manual install of **Rojo 7.6.1**
+- [Rojo](https://rojo.space/) — this repo pins **7.6.1** in `aftman.toml` (stable; matches the Studio plugin)
 
 ```bash
 aftman install
+rojo --version    # should print Rojo 7.6.1
+rojo plugin install
 ```
+
+### Rojo `protocolVersion` error fix (Windows)
+
+If Studio shows `attempt to index number with 'protocolVersion'` and the stack mentions **`user_RojoManagedPlugin.rbxm`**, you have **two different Rojo plugins** fighting each other — usually **CLI 7.7** + **Managed Plugin 7.6**.
+
+**Fix (pick one path):**
+
+**A — Recommended: use Rojo 7.6.1 everywhere**
+
+1. Download [Rojo 7.6.1](https://github.com/rojo-rbx/rojo/releases/tag/v7.6.1) and replace `C:\rojo\rojo.exe` (or run `aftman install` in this repo).
+2. Run `.\scripts\fix-rojo.ps1` from PowerShell (installs the matching plugin).
+3. In Studio → **Plugins → Manage Plugins** → **disable** the Creator Store **Rojo / Rojo Managed Plugin**.
+4. Restart Studio, `rojo serve default.project.json`, click **Connect**.
+
+**B — Stay on 7.7 CLI**
+
+1. Run `rojo plugin install` from the **same** `rojo.exe` you use for `serve`.
+2. **Disable** the Managed Plugin in Studio (step 3 above) — mandatory; version numbers can look “correct” but the wrong plugin is still active.
+3. Restart Studio and reconnect.
+
+Only one Rojo plugin should be enabled. The file-based plugin in `%LOCALAPPDATA%\Roblox\Plugins\` must match your CLI version.
 
 ## Project layout
 
