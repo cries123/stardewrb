@@ -19,8 +19,6 @@ function StudioSetup.init()
 
 	if PlaceType.isFarm() then
 		StudioSetup._ensureFarmSpawn()
-	elseif PlaceType.isHub() then
-		StudioSetup._ensureHubPortal()
 	end
 end
 
@@ -40,21 +38,6 @@ function StudioSetup._ensureFarmSpawn()
 		spawn.Position = Vector3.new(0, 1, -10)
 		spawn.Parent = workspace
 	end
-end
-
-function StudioSetup._ensureHubPortal()
-	if CollectionService:GetTagged("FarmPortal")[1] then
-		return
-	end
-
-	local portal = Instance.new("Part")
-	portal.Name = "FarmPortal"
-	portal.Anchored = true
-	portal.Size = Vector3.new(6, 10, 2)
-	portal.Position = Vector3.new(0, 5, 0)
-	portal.Color = Color3.fromRGB(120, 90, 255)
-	portal.Parent = workspace
-	CollectionService:AddTag(portal, "FarmPortal")
 end
 
 return StudioSetup
