@@ -1,0 +1,15 @@
+--[[
+	Copy this file to GameConfig.Private.lua and fill in your place IDs.
+	GameConfig.Private.lua is gitignored — pulls will never overwrite it.
+]]
+
+return {
+	Places = {
+		Hub = {
+			PlaceId = 0, -- your hub place id from create.roblox.com
+		},
+		Farm = {
+			PlaceId = 0, -- your farm place id
+		},
+	},
+}
