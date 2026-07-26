@@ -82,6 +82,7 @@ HubLayout.BUILDINGS = {
 		size = Vector3.new(22, 12, 18),
 		wallColor = Color3.fromRGB(110, 108, 104),
 		roofColor = Color3.fromRGB(72, 70, 68),
+		doorInteraction = "Blacksmith",
 	},
 	{
 		id = "Museum",
@@ -128,6 +129,7 @@ HubLayout.BUILDINGS = {
 		size = Vector3.new(28, 16, 24),
 		wallColor = Color3.fromRGB(178, 140, 98),
 		roofColor = Color3.fromRGB(108, 68, 48),
+		doorInteraction = "MayorManor",
 	},
 	{
 		id = "WillowLane1",

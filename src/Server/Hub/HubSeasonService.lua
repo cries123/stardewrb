@@ -3,6 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HubSeasonPalettes = require(ReplicatedStorage.Shared.Hub.HubSeasonPalettes)
 local TimeMath = require(ReplicatedStorage.Shared.Time.TimeMath)
 local PlaceType = require(ReplicatedStorage.Shared.PlaceType)
+local HubSeasonEffects = require(script.Parent.HubSeasonEffects)
 
 local HubWorldService = require(script.Parent.HubWorldService)
 
@@ -19,8 +20,8 @@ function HubSeasonService.init()
 	HubSeasonService.applySeason(calendar.season)
 end
 
-function HubSeasonService.applySeason(seasonName: string)
-	if HubSeasonService._currentSeason == seasonName then
+function HubSeasonService.applySeason(seasonName: string, forceEffects: boolean?)
+	if HubSeasonService._currentSeason == seasonName and not forceEffects then
 		return
 	end
 
@@ -44,6 +45,7 @@ function HubSeasonService.applySeason(seasonName: string)
 	end
 
 	print(`[HubSeasonService] Applied {seasonName} palette to town`)
+	HubSeasonEffects.apply(seasonName)
 end
 
 function HubSeasonService.onNewGameDay(gameDay: number)

@@ -8,6 +8,7 @@ local HubBuildingKit = {}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HubLayout = require(ReplicatedStorage.Shared.Hub.HubLayout)
 local HubInteractionService = require(script.Parent.HubInteractionService)
+local HubSeasonEffects = require(script.Parent.HubSeasonEffects)
 local GROUND_Y = HubLayout.GROUND_Y
 
 local SIGN_WOOD = Color3.fromRGB(55, 42, 32)
@@ -29,7 +30,7 @@ local function createPart(props): Part
 end
 
 local function createBoxRoof(parent: Instance, center: Vector3, width: number, depth: number, height: number, color: Color3)
-	createPart({
+	local roof = createPart({
 		Name = "Roof",
 		Parent = parent,
 		Size = Vector3.new(width + 2, height, depth + 2),
@@ -37,6 +38,9 @@ local function createBoxRoof(parent: Instance, center: Vector3, width: number, d
 		Color = color,
 		Material = Enum.Material.WoodPlanks,
 	})
+	roof:SetAttribute("HubSeasonRoof", true)
+	HubSeasonEffects.markRoofSnowCap(roof, width + 2, depth + 2)
+	return roof
 end
 
 local function createBillboard(adornee: BasePart, title: string, subtitle: string)
@@ -292,6 +296,11 @@ function HubBuildingKit.buildSaloon(parent: Folder, def)
 		Color = def.roofColor,
 		Material = Enum.Material.WoodPlanks,
 	})
+	local roof = folder:FindFirstChild("Roof")
+	if roof then
+		roof:SetAttribute("HubSeasonRoof", true)
+		HubSeasonEffects.markRoofSnowCap(roof, width + 3, depth + 3)
+	end
 
 	for _, xOffset in { -6, 0, 6 } do
 		local window = createPart({
@@ -391,7 +400,8 @@ function HubBuildingKit.buildGeneric(parent: Folder, def)
 	})
 
 	createBoxRoof(folder, origin + Vector3.new(0, height + 2, 0), width, depth, 4, def.roofColor)
-	addDoor(folder, origin, depth)
+	local doorInteraction = def.doorInteraction
+	addDoor(folder, origin, depth, doorInteraction)
 
 	local sign = createPart({
 		Name = "Sign",

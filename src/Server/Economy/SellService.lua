@@ -4,6 +4,7 @@ local GameConfig = require(ReplicatedStorage.Shared.GameConfig)
 local DataService = require(script.Parent.Parent.Data.DataService)
 local Remotes = require(script.Parent.Parent.Net.Remotes)
 local PlayerStateService = require(script.Parent.Parent.Data.PlayerStateService)
+local LedgerService = require(script.Parent.LedgerService)
 
 local SellService = {}
 
@@ -36,7 +37,10 @@ function SellService.sellItem(player: Player, itemId: string, amount: number)
 	end
 
 	data.Inventory.Harvest[itemId] = owned - amount
-	data.Money += cropConfig.SellPrice * amount
+	local gold = cropConfig.SellPrice * amount
+	data.Money += gold
+	LedgerService.recordGoldEarned(data, gold)
+	LedgerService.recordCropsSold(data, amount)
 	PlayerStateService.replicate(player)
 end
 

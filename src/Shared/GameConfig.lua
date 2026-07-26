@@ -112,9 +112,22 @@ local GameConfig = {
 				{ itemId = "Bread", kind = "food" },
 			},
 		},
+		Blacksmith = {
+			DisplayName = "Blacksmith",
+			OpenHour = 9,
+			CloseHour = 16,
+			ClosedWeekdays = {},
+			Items = {},
+		},
 	},
 
-	Festivals = {},
+	Festivals = {
+		{ name = "Egg Festival", season = "Spring", day = 13, description = "Town square • egg hunt at 9 AM" },
+		{ name = "Luau", season = "Summer", day = 11, description = "Beach party • potluck dishes welcome" },
+		{ name = "Stardew Valley Fair", season = "Fall", day = 16, description = "Grange display • show off your crops" },
+		{ name = "Spirit's Eve", season = "Fall", day = 27, description = "Maze at the woods • spooky fun" },
+		{ name = "Feast of the Winter Star", season = "Winter", day = 25, description = "Secret gift exchange in the square" },
+	},
 }
 
 if not GameConfig.ActionEnergyCost then

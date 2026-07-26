@@ -10,6 +10,8 @@ local INTERACTIONS = {
 	Saloon = { actionText = "Enter", objectText = "Stardrop Saloon" },
 	NoticeBoard = { actionText = "Read", objectText = "Notice Board" },
 	ShippingBin = { actionText = "Ship", objectText = "Shipping Bin" },
+	Blacksmith = { actionText = "Enter", objectText = "Blacksmith" },
+	MayorManor = { actionText = "Visit", objectText = "Mayor's Manor" },
 }
 
 function HubInteractionService.init()
@@ -49,6 +51,22 @@ function HubInteractionService.attachPrompt(part: BasePart, interactionId: strin
 
 	prompt.ActionText = config.actionText
 	prompt.ObjectText = config.objectText
+	prompt.HoldDuration = 0
+	CollectionService:AddTag(prompt, PROMPT_TAG)
+end
+
+function HubInteractionService.attachNpcPrompt(part: BasePart, npcId: string, displayName: string)
+	part:SetAttribute("HubNpcId", npcId)
+
+	local prompt = part:FindFirstChildOfClass("ProximityPrompt")
+	if not prompt then
+		prompt = Instance.new("ProximityPrompt")
+		prompt.Name = "NpcPrompt"
+		prompt.Parent = part
+	end
+
+	prompt.ActionText = "Talk"
+	prompt.ObjectText = displayName
 	prompt.HoldDuration = 0
 	CollectionService:AddTag(prompt, PROMPT_TAG)
 end
