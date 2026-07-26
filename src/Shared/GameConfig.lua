@@ -46,7 +46,9 @@ local GameConfig = {
 		Origin = Vector3.new(0, 0, 0), -- world-space origin of cell (1,1)
 		PlatformSize = 96,
 		WallHeight = 16,
-		BuildVersion = 2,
+		BuildVersion = 3,
+		SpawnCell = { X = 12, Y = 4 },
+		PortalCell = { X = 3, Y = 12 },
 		Farmhouse = {
 			CellX = 9,
 			CellY = 19,

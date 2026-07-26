@@ -108,31 +108,34 @@ function FarmWorldService._createWalls(folder: Folder, center: Vector3, platform
 	end
 end
 
-function FarmWorldService._createSpawn(folder: Folder, center: Vector3)
-	local halfGrid = (GameConfig.Farm.GridWidth * GameConfig.Farm.CellSize) / 2
+function FarmWorldService._createSpawn(folder: Folder, _center: Vector3)
+	local spawnCell = GameConfig.Farm.SpawnCell
+	local worldPos = GridMath.cellToWorld(spawnCell.X, spawnCell.Y)
+
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "FarmSpawn"
 	spawn.Anchored = true
-	spawn.Size = Vector3.new(10, 1, 10)
-	spawn.Position = center + Vector3.new(0, 0.5, -halfGrid - 10)
+	spawn.Size = Vector3.new(8, 1, 8)
+	spawn.Position = Vector3.new(worldPos.X, worldPos.Y + 0.5, worldPos.Z)
 	spawn.Material = Enum.Material.Cobblestone
 	spawn.Color = Color3.fromRGB(140, 140, 140)
 	spawn.Neutral = true
 	spawn.Parent = folder
 end
 
-function FarmWorldService._createReturnPortal(folder: Folder, center: Vector3)
+function FarmWorldService._createReturnPortal(folder: Folder, _center: Vector3)
 	if CollectionService:GetTagged(PORTAL_TAG)[1] then
 		return
 	end
 
-	local halfGrid = (GameConfig.Farm.GridWidth * GameConfig.Farm.CellSize) / 2
+	local portalCell = GameConfig.Farm.PortalCell
+	local worldPos = GridMath.cellToWorld(portalCell.X, portalCell.Y)
 
 	local portal = Instance.new("Part")
 	portal.Name = "HubPortal"
 	portal.Anchored = true
 	portal.Size = Vector3.new(6, 10, 2)
-	portal.Position = center + Vector3.new(-halfGrid - 8, 5, 0)
+	portal.Position = Vector3.new(worldPos.X, worldPos.Y + 5, worldPos.Z)
 	portal.Color = Color3.fromRGB(255, 180, 60)
 	portal.Material = Enum.Material.Neon
 	portal.Parent = folder
