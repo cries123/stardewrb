@@ -56,24 +56,35 @@ end
 function FarmClient._buildPlotTiles()
 	FarmClient._prepareGround()
 
+	local buildVersion = GameConfig.Farm.BuildVersion or 1
+	if plotFolder:GetAttribute("BuildVersion") == buildVersion and plotFolder:FindFirstChild("Cell_1_1") then
+		return
+	end
+
+	plotFolder:ClearAllChildren()
+
 	local tileHeight = 0.5
 	local tileCenterY = GameConfig.Farm.Origin.Y + tileHeight / 2 + 0.05
 
 	for x = 1, GameConfig.Farm.GridWidth do
 		for y = 1, GameConfig.Farm.GridHeight do
-			local tile = Instance.new("Part")
-			tile.Name = `Cell_{x}_{y}`
-			tile.Anchored = true
-			tile.CanCollide = true
-			tile.Size = Vector3.new(GameConfig.Farm.CellSize - 0.2, tileHeight, GameConfig.Farm.CellSize - 0.2)
-			local worldPos = GridMath.cellToWorld(x, y)
-			tile.Position = Vector3.new(worldPos.X, tileCenterY, worldPos.Z)
-			tile.Material = Enum.Material.Ground
-			tile.Color = SOIL_COLORS.Empty
-			tile.CanQuery = true
-			tile.Parent = plotFolder
+			if not GridMath.isBlockedCell(x, y) then
+				local tile = Instance.new("Part")
+				tile.Name = `Cell_{x}_{y}`
+				tile.Anchored = true
+				tile.CanCollide = false
+				tile.Size = Vector3.new(GameConfig.Farm.CellSize - 0.2, tileHeight, GameConfig.Farm.CellSize - 0.2)
+				local worldPos = GridMath.cellToWorld(x, y)
+				tile.Position = Vector3.new(worldPos.X, tileCenterY, worldPos.Z)
+				tile.Material = Enum.Material.Ground
+				tile.Color = SOIL_COLORS.Empty
+				tile.CanQuery = true
+				tile.Parent = plotFolder
+			end
 		end
 	end
+
+	plotFolder:SetAttribute("BuildVersion", buildVersion)
 end
 
 function FarmClient._bindRemotes()

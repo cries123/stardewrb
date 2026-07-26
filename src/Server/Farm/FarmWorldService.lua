@@ -4,6 +4,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameConfig = require(ReplicatedStorage.Shared.GameConfig)
 local GridMath = require(ReplicatedStorage.Shared.Grid.GridMath)
 local PlaceType = require(ReplicatedStorage.Shared.PlaceType)
+local FarmBuildingKit = require(script.Parent.FarmBuildingKit)
 
 local FarmWorldService = {}
 
@@ -42,11 +43,22 @@ function FarmWorldService._getOrCreateFolder(): Folder
 	return folder
 end
 
+function FarmWorldService._shouldSkipBuild(folder: Folder): boolean
+	local buildVersion = GameConfig.Farm.BuildVersion or 1
+	if folder:GetAttribute("BuildVersion") ~= buildVersion then
+		return false
+	end
+
+	return folder:FindFirstChild("Platform") ~= nil
+end
+
 function FarmWorldService._buildWorld()
 	local folder = FarmWorldService._getOrCreateFolder()
-	if folder:FindFirstChild("Platform") then
+	if FarmWorldService._shouldSkipBuild(folder) then
 		return
 	end
+
+	folder:ClearAllChildren()
 
 	local center = GridMath.getGridCenter()
 	local platformSize = GameConfig.Farm.PlatformSize
@@ -60,11 +72,15 @@ function FarmWorldService._buildWorld()
 	platform.Material = Enum.Material.Grass
 	platform.Color = Color3.fromRGB(76, 120, 68)
 	platform.CanQuery = false
+	platform.CanCollide = true
 	platform.Parent = folder
 
 	FarmWorldService._createWalls(folder, center, platformSize, wallHeight)
+	FarmBuildingKit.buildFarmhouse(folder)
 	FarmWorldService._createSpawn(folder, center)
 	FarmWorldService._createReturnPortal(folder, center)
+
+	folder:SetAttribute("BuildVersion", GameConfig.Farm.BuildVersion or 1)
 end
 
 function FarmWorldService._createWalls(folder: Folder, center: Vector3, platformSize: number, wallHeight: number)

@@ -106,6 +106,27 @@ function PlayerDataUtil.ensureDefaults(data)
 	elseif data.FarmState.Grid == nil then
 		data.FarmState.Grid = PlayerDataUtil.createEmptyGrid()
 	end
+
+	PlayerDataUtil.ensureGridSize(data.FarmState.Grid)
+end
+
+function PlayerDataUtil.ensureGridSize(grid)
+	local targetWidth = GameConfig.Farm.GridWidth
+	local targetHeight = GameConfig.Farm.GridHeight
+
+	for x = 1, targetWidth do
+		if grid[x] == nil then
+			grid[x] = {}
+		end
+		for y = 1, targetHeight do
+			if grid[x][y] == nil then
+				grid[x][y] = {
+					soil = "Empty",
+					crop = nil,
+				}
+			end
+		end
+	end
 end
 
 return PlayerDataUtil

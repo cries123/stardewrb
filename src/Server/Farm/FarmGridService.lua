@@ -75,7 +75,7 @@ function FarmGridService._validateCell(player: Player, x, y)
 		return nil, "Invalid coordinates"
 	end
 
-	if not GridMath.isInBounds(x, y) then
+	if not GridMath.isFarmable(x, y) then
 		return nil, "Out of bounds"
 	end
 
